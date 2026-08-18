@@ -2,6 +2,7 @@ package com.armalora.product.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ProductResponse {
 
@@ -9,13 +10,14 @@ public class ProductResponse {
     private String name;
     private String description;
     private BigDecimal price;
-    private Integer stockQuantity;
     private Long categoryId;
     private String categoryName;
-    private String imageUrl;
     private Boolean active;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private List<ProductImageResponse> images;
+    private List<ProductVariantResponse> variants;
 
     public ProductResponse() {
     }
@@ -52,14 +54,6 @@ public class ProductResponse {
         this.price = price;
     }
 
-    public Integer getStockQuantity() {
-        return stockQuantity;
-    }
-
-    public void setStockQuantity(Integer stockQuantity) {
-        this.stockQuantity = stockQuantity;
-    }
-
     public Long getCategoryId() {
         return categoryId;
     }
@@ -76,12 +70,12 @@ public class ProductResponse {
         this.categoryName = categoryName;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public List<ProductImageResponse> getImages() {
+        return images;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImages(List<ProductImageResponse> images) {
+        this.images = images;
     }
 
     public Boolean getActive() {
@@ -106,5 +100,15 @@ public class ProductResponse {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<ProductVariantResponse> getVariants() {
+        return variants;
+    }
+
+    public void setVariants(
+            List<ProductVariantResponse> variants) {
+
+        this.variants = variants;
     }
 }

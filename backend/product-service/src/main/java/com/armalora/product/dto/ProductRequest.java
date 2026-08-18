@@ -31,13 +31,6 @@ public class ProductRequest {
     )
     private BigDecimal price;
 
-    @NotNull(message = "Stock quantity is required")
-    @Min(
-            value = 0,
-            message = "Stock quantity cannot be negative"
-    )
-    private Integer stockQuantity;
-
     @NotNull(message = "Category is required")
     private Long categoryId;
 
@@ -70,14 +63,6 @@ public class ProductRequest {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
-    }
-
-    public Integer getStockQuantity() {
-        return stockQuantity;
-    }
-
-    public void setStockQuantity(Integer stockQuantity) {
-        this.stockQuantity = stockQuantity;
     }
 
     public String getImageUrl() {

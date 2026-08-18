@@ -5,6 +5,13 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "products")
 public class Product {
@@ -22,15 +29,11 @@ public class Product {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(nullable = false)
-    private Integer stockQuantity;
 
     // Many products can belong to one category
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
-
-    private String imageUrl;
 
     @Column(nullable = false)
     private Boolean active = true;
@@ -43,10 +46,6 @@ public class Product {
 
     public Product() {
     }
-
-    // =========================================================
-    // PRE-PERSIST
-    // =========================================================
 
     @PrePersist
     protected void onCreate() {
@@ -61,19 +60,11 @@ public class Product {
         }
     }
 
-    // =========================================================
-    // PRE-UPDATE
-    // =========================================================
-
     @PreUpdate
     protected void onUpdate() {
 
         updatedAt = LocalDateTime.now();
     }
-
-    // =========================================================
-    // GETTERS AND SETTERS
-    // =========================================================
 
     public Long getId() {
         return id;
@@ -107,13 +98,6 @@ public class Product {
         this.price = price;
     }
 
-    public Integer getStockQuantity() {
-        return stockQuantity;
-    }
-
-    public void setStockQuantity(Integer stockQuantity) {
-        this.stockQuantity = stockQuantity;
-    }
 
     public Category getCategory() {
         return category;
@@ -121,14 +105,6 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public Boolean getActive() {
@@ -145,5 +121,35 @@ public class Product {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ProductVariant> variants =
+            new ArrayList<>();
+
+    public List<ProductVariant> getVariants() {
+        return variants;
+    }
+
+    public void setVariants(
+            List<ProductVariant> variants) {
+
+        this.variants = variants;
+    }
+
+    @OrderBy("displayOrder ASC")
+    private List<ProductImage> images = new ArrayList<>();
+
+
+    public List<ProductImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ProductImage> images) {
+        this.images = images;
     }
 }
