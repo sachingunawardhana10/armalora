@@ -79,4 +79,15 @@ public class InventoryController {
 
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<List<InventoryResponse>>
+    getInventoryByProductId(
+            @PathVariable Long productId) {
+
+        return ResponseEntity.ok(
+                inventoryService.getInventoryByProductId(
+                        productId
+                )
+        );
+    }
 }

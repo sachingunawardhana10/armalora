@@ -1,5 +1,7 @@
 package com.armalora.product.controller;
 
+import com.armalora.product.client.InventoryClient;
+import com.armalora.product.dto.InventoryResponse;
 import com.armalora.product.dto.ProductRequest;
 import com.armalora.product.dto.ProductResponse;
 import com.armalora.product.service.ProductService;
@@ -21,9 +23,14 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final InventoryClient inventoryClient;
 
-    public ProductController(ProductService productService) {
+    public ProductController(
+            ProductService productService,
+            InventoryClient inventoryClient) {
+
         this.productService = productService;
+        this.inventoryClient = inventoryClient;
     }
 
     @PostMapping
@@ -64,6 +71,16 @@ public class ProductController {
 
         return ResponseEntity.ok(
                 productService.getProductById(id)
+        );
+    }
+
+    @GetMapping("/{id}/inventory")
+    public ResponseEntity<List<InventoryResponse>>
+    getProductInventory(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                inventoryClient.getInventoryByProductId(id)
         );
     }
 

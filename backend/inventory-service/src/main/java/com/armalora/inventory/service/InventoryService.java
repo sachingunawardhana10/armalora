@@ -129,6 +129,15 @@ public class InventoryService {
 
         inventoryRepository.deleteById(id);
     }
+    public List<InventoryResponse> getInventoryByProductId(
+            Long productId) {
+
+        return inventoryRepository
+                .findByProductId(productId)
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
 
     private InventoryResponse convertToResponse(
             Inventory inventory) {

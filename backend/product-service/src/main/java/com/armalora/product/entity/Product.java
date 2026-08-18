@@ -4,11 +4,6 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +24,6 @@ public class Product {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-
     // Many products can belong to one category
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -43,6 +37,25 @@ public class Product {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    // One product can have many variants
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ProductVariant> variants =
+            new ArrayList<>();
+
+    // One product can have many images
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @OrderBy("displayOrder ASC")
+    private List<ProductImage> images =
+            new ArrayList<>();
 
     public Product() {
     }
@@ -98,7 +111,6 @@ public class Product {
         this.price = price;
     }
 
-
     public Category getCategory() {
         return category;
     }
@@ -123,14 +135,6 @@ public class Product {
         return updatedAt;
     }
 
-    @OneToMany(
-            mappedBy = "product",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<ProductVariant> variants =
-            new ArrayList<>();
-
     public List<ProductVariant> getVariants() {
         return variants;
     }
@@ -141,15 +145,13 @@ public class Product {
         this.variants = variants;
     }
 
-    @OrderBy("displayOrder ASC")
-    private List<ProductImage> images = new ArrayList<>();
-
-
     public List<ProductImage> getImages() {
         return images;
     }
 
-    public void setImages(List<ProductImage> images) {
+    public void setImages(
+            List<ProductImage> images) {
+
         this.images = images;
     }
 }
