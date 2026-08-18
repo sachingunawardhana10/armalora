@@ -1,10 +1,12 @@
 package com.armalora.product.controller;
 
-import com.armalora.product.entity.Product;
+import com.armalora.product.dto.ProductRequest;
+import com.armalora.product.dto.ProductResponse;
 import com.armalora.product.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -19,16 +21,20 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(
-            @RequestBody Product product) {
+    public ResponseEntity<ProductResponse> createProduct(
+            @Valid @RequestBody ProductRequest request) {
 
-        Product createdProduct = productService.createProduct(product);
+        ProductResponse response =
+                productService.createProduct(request);
 
-        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                response,
+                HttpStatus.CREATED
+        );
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
 
         return ResponseEntity.ok(
                 productService.getAllProducts()
@@ -36,7 +42,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(
+    public ResponseEntity<ProductResponse> getProductById(
             @PathVariable Long id) {
 
         return ResponseEntity.ok(
@@ -45,12 +51,12 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(
+    public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable Long id,
-            @RequestBody Product product) {
+            @Valid @RequestBody ProductRequest request) {
 
         return ResponseEntity.ok(
-                productService.updateProduct(id, product)
+                productService.updateProduct(id, request)
         );
     }
 
