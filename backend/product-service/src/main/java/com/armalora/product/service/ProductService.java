@@ -2,27 +2,43 @@ package com.armalora.product.service;
 
 import com.armalora.product.dto.ProductRequest;
 import com.armalora.product.dto.ProductResponse;
+import com.armalora.product.entity.Category;
 import com.armalora.product.entity.Product;
 import com.armalora.product.exception.ProductNotFoundException;
+import com.armalora.product.repository.CategoryRepository;
 import com.armalora.product.repository.ProductRepository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(
+            ProductRepository productRepository,
+            CategoryRepository categoryRepository) {
+
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
-    // =========================
-    // CREATE PRODUCT
-    // =========================
-
     public ProductResponse createProduct(ProductRequest request) {
+
+        Category category = categoryRepository
+                .findById(request.getCategoryId())
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Category not found with id: "
+                                        + request.getCategoryId()
+                        )
+                );
 
         Product product = new Product();
 
@@ -30,40 +46,33 @@ public class ProductService {
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setStockQuantity(request.getStockQuantity());
-        product.setCategory(request.getCategory());
+        product.setCategory(category);
         product.setImageUrl(request.getImageUrl());
 
-        // If active is not provided, default to true
         product.setActive(
                 request.getActive() != null
                         ? request.getActive()
                         : true
         );
 
-        Product savedProduct = productRepository.save(product);
+        Product savedProduct =
+                productRepository.save(product);
 
         return convertToResponse(savedProduct);
     }
 
-    // =========================
-    // GET ALL ACTIVE PRODUCTS
-    // =========================
+    public Page<ProductResponse> getAllProducts(
+            Pageable pageable) {
 
-    public List<ProductResponse> getAllProducts() {
-
-        return productRepository.findByActiveTrue()
-                .stream()
-                .map(this::convertToResponse)
-                .toList();
+        return productRepository
+                .findByActiveTrue(pageable)
+                .map(this::convertToResponse);
     }
-
-    // =========================
-    // GET PRODUCT BY ID
-    // =========================
 
     public ProductResponse getProductById(Long id) {
 
-        Product product = productRepository.findById(id)
+        Product product = productRepository
+                .findById(id)
                 .orElseThrow(() ->
                         new ProductNotFoundException(id)
                 );
@@ -71,29 +80,42 @@ public class ProductService {
         return convertToResponse(product);
     }
 
-    // =========================
-    // UPDATE PRODUCT
-    // =========================
-
     public ProductResponse updateProduct(
             Long id,
             ProductRequest request) {
 
-        Product existingProduct = productRepository.findById(id)
+        Product existingProduct = productRepository
+                .findById(id)
                 .orElseThrow(() ->
                         new ProductNotFoundException(id)
+                );
+
+        Category category = categoryRepository
+                .findById(request.getCategoryId())
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Category not found with id: "
+                                        + request.getCategoryId()
+                        )
                 );
 
         existingProduct.setName(request.getName());
         existingProduct.setDescription(request.getDescription());
         existingProduct.setPrice(request.getPrice());
-        existingProduct.setStockQuantity(request.getStockQuantity());
-        existingProduct.setCategory(request.getCategory());
-        existingProduct.setImageUrl(request.getImageUrl());
+        existingProduct.setStockQuantity(
+                request.getStockQuantity()
+        );
 
-        // Only update active if a value was provided
+        existingProduct.setCategory(category);
+
+        existingProduct.setImageUrl(
+                request.getImageUrl()
+        );
+
         if (request.getActive() != null) {
-            existingProduct.setActive(request.getActive());
+            existingProduct.setActive(
+                    request.getActive()
+            );
         }
 
         Product updatedProduct =
@@ -101,10 +123,6 @@ public class ProductService {
 
         return convertToResponse(updatedProduct);
     }
-
-    // =========================
-    // DELETE PRODUCT
-    // =========================
 
     public void deleteProduct(Long id) {
 
@@ -116,24 +134,101 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    // =========================
-    // ENTITY → RESPONSE DTO
-    // =========================
+    public List<ProductResponse> searchProducts(
+            String name,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
 
-    private ProductResponse convertToResponse(Product product) {
+        List<Product> products;
 
-        ProductResponse response = new ProductResponse();
+        if (name != null && !name.isBlank()) {
+
+            products =
+                    productRepository
+                            .findByActiveTrueAndNameContainingIgnoreCase(
+                                    name
+                            );
+
+        } else if (categoryId != null) {
+
+            products =
+                    productRepository
+                            .findByActiveTrueAndCategoryId(
+                                    categoryId
+                            );
+
+        } else if (minPrice != null && maxPrice != null) {
+
+            products =
+                    productRepository
+                            .findByActiveTrueAndPriceBetween(
+                                    minPrice,
+                                    maxPrice
+                            );
+
+        } else {
+
+            products =
+                    productRepository.findByActiveTrue();
+        }
+
+        return products.stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    private ProductResponse convertToResponse(
+            Product product) {
+
+        ProductResponse response =
+                new ProductResponse();
 
         response.setId(product.getId());
-        response.setName(product.getName());
-        response.setDescription(product.getDescription());
-        response.setPrice(product.getPrice());
-        response.setStockQuantity(product.getStockQuantity());
-        response.setCategory(product.getCategory());
-        response.setImageUrl(product.getImageUrl());
-        response.setActive(product.getActive());
-        response.setCreatedAt(product.getCreatedAt());
-        response.setUpdatedAt(product.getUpdatedAt());
+
+        response.setName(
+                product.getName()
+        );
+
+        response.setDescription(
+                product.getDescription()
+        );
+
+        response.setPrice(
+                product.getPrice()
+        );
+
+        response.setStockQuantity(
+                product.getStockQuantity()
+        );
+
+        // Category information
+        if (product.getCategory() != null) {
+
+            response.setCategoryId(
+                    product.getCategory().getId()
+            );
+
+            response.setCategoryName(
+                    product.getCategory().getName()
+            );
+        }
+
+        response.setImageUrl(
+                product.getImageUrl()
+        );
+
+        response.setActive(
+                product.getActive()
+        );
+
+        response.setCreatedAt(
+                product.getCreatedAt()
+        );
+
+        response.setUpdatedAt(
+                product.getUpdatedAt()
+        );
 
         return response;
     }

@@ -38,8 +38,8 @@ public class ProductRequest {
     )
     private Integer stockQuantity;
 
-    @NotBlank(message = "Category is required")
-    private String category;
+    @NotNull(message = "Category is required")
+    private Long categoryId;
 
     private String imageUrl;
 
@@ -80,14 +80,6 @@ public class ProductRequest {
         this.stockQuantity = stockQuantity;
     }
 
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }
@@ -102,5 +94,13 @@ public class ProductRequest {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 }

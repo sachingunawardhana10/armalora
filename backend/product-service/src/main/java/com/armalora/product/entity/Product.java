@@ -25,8 +25,10 @@ public class Product {
     @Column(nullable = false)
     private Integer stockQuantity;
 
-    @Column(nullable = false)
-    private String category;
+    // Many products can belong to one category
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     private String imageUrl;
 
@@ -39,20 +41,39 @@ public class Product {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    public Product() {
+    }
+
+    // =========================================================
+    // PRE-PERSIST
+    // =========================================================
+
     @PrePersist
     protected void onCreate() {
+
         LocalDateTime now = LocalDateTime.now();
+
         createdAt = now;
         updatedAt = now;
+
+        if (active == null) {
+            active = true;
+        }
     }
+
+    // =========================================================
+    // PRE-UPDATE
+    // =========================================================
 
     @PreUpdate
     protected void onUpdate() {
+
         updatedAt = LocalDateTime.now();
     }
 
-    public Product() {
-    }
+    // =========================================================
+    // GETTERS AND SETTERS
+    // =========================================================
 
     public Long getId() {
         return id;
@@ -94,11 +115,11 @@ public class Product {
         this.stockQuantity = stockQuantity;
     }
 
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
