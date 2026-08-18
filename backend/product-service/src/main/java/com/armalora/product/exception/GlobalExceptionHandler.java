@@ -1,6 +1,5 @@
 package com.armalora.product.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -8,54 +7,99 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleProductNotFound(
-            ProductNotFoundException exception,
-            HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>>
+    handleProductNotFound(
+            ProductNotFoundException exception) {
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "Not Found",
-                exception.getMessage(),
-                request.getRequestURI()
+        return buildResponse(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage()
         );
+    }
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(errorResponse);
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<Map<String, Object>>
+    handleCategoryNotFound(
+            CategoryNotFoundException exception) {
+
+        return buildResponse(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage()
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(
-            MethodArgumentNotValidException exception,
-            HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>>
+    handleValidation(
+            MethodArgumentNotValidException exception) {
 
-        String message = exception.getBindingResult()
+        Map<String, Object> response =
+                new HashMap<>();
+
+        Map<String, String> errors =
+                new HashMap<>();
+
+        exception.getBindingResult()
                 .getFieldErrors()
-                .stream()
-                .map(error ->
-                        error.getField()
-                                + ": "
-                                + error.getDefaultMessage()
-                )
-                .collect(Collectors.joining(", "));
+                .forEach(error ->
+                        errors.put(
+                                error.getField(),
+                                error.getDefaultMessage()
+                        )
+                );
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation Failed",
-                message,
-                request.getRequestURI()
+        response.put(
+                "timestamp",
+                LocalDateTime.now()
+        );
+
+        response.put(
+                "status",
+                HttpStatus.BAD_REQUEST.value()
+        );
+
+        response.put(
+                "errors",
+                errors
         );
 
         return ResponseEntity
-                .badRequest()
-                .body(errorResponse);
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    private ResponseEntity<Map<String, Object>>
+    buildResponse(
+            HttpStatus status,
+            String message) {
+
+        Map<String, Object> response =
+                new HashMap<>();
+
+        response.put(
+                "timestamp",
+                LocalDateTime.now()
+        );
+
+        response.put(
+                "status",
+                status.value()
+        );
+
+        response.put(
+                "message",
+                message
+        );
+
+        return ResponseEntity
+                .status(status)
+                .body(response);
     }
 }

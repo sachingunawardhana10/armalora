@@ -4,6 +4,7 @@ import com.armalora.product.dto.ProductRequest;
 import com.armalora.product.dto.ProductResponse;
 import com.armalora.product.entity.Category;
 import com.armalora.product.entity.Product;
+import com.armalora.product.exception.CategoryNotFoundException;
 import com.armalora.product.exception.ProductNotFoundException;
 import com.armalora.product.repository.CategoryRepository;
 import com.armalora.product.repository.ProductRepository;
@@ -14,6 +15,13 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import com.armalora.product.specification.ProductSpecification;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
+import org.springframework.data.jpa.domain.Specification;
 
 @Service
 public class ProductService {
@@ -93,11 +101,9 @@ public class ProductService {
         Category category = categoryRepository
                 .findById(request.getCategoryId())
                 .orElseThrow(() ->
-                        new RuntimeException(
-                                "Category not found with id: "
-                                        + request.getCategoryId()
-                        )
-                );
+                        new CategoryNotFoundException(
+                                request.getCategoryId()
+                        ));
 
         existingProduct.setName(request.getName());
         existingProduct.setDescription(request.getDescription());
@@ -132,50 +138,6 @@ public class ProductService {
         }
 
         productRepository.deleteById(id);
-    }
-
-    public List<ProductResponse> searchProducts(
-            String name,
-            Long categoryId,
-            BigDecimal minPrice,
-            BigDecimal maxPrice) {
-
-        List<Product> products;
-
-        if (name != null && !name.isBlank()) {
-
-            products =
-                    productRepository
-                            .findByActiveTrueAndNameContainingIgnoreCase(
-                                    name
-                            );
-
-        } else if (categoryId != null) {
-
-            products =
-                    productRepository
-                            .findByActiveTrueAndCategoryId(
-                                    categoryId
-                            );
-
-        } else if (minPrice != null && maxPrice != null) {
-
-            products =
-                    productRepository
-                            .findByActiveTrueAndPriceBetween(
-                                    minPrice,
-                                    maxPrice
-                            );
-
-        } else {
-
-            products =
-                    productRepository.findByActiveTrue();
-        }
-
-        return products.stream()
-                .map(this::convertToResponse)
-                .toList();
     }
 
     private ProductResponse convertToResponse(
@@ -232,4 +194,35 @@ public class ProductService {
 
         return response;
     }
+
+    public Page<ProductResponse> searchProducts(
+            String name,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            int page,
+            int size,
+            String sortBy,
+            String direction) {
+
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable =
+                PageRequest.of(page, size, sort);
+
+        Specification<Product> specification =
+                Specification
+                        .where(ProductSpecification.isActive())
+                        .and(ProductSpecification.hasName(name))
+                        .and(ProductSpecification.hasCategory(categoryId))
+                        .and(ProductSpecification.priceGreaterThanOrEqual(minPrice))
+                        .and(ProductSpecification.priceLessThanOrEqual(maxPrice));
+
+        return productRepository
+                .findAll(specification, pageable)
+                .map(this::convertToResponse);
+    }
+
 }
