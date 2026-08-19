@@ -1,7 +1,6 @@
 package com.armalora.user.dto;
 
 import com.armalora.user.entity.User;
-import com.armalora.user.entity.UserRole;
 
 import java.time.LocalDateTime;
 
@@ -11,26 +10,46 @@ public class UserResponse {
     private String firstName;
     private String lastName;
     private String email;
-    private UserRole role;
+    private String role;
     private Boolean active;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public UserResponse() {
     }
 
+    public UserResponse(
+            Long id,
+            String firstName,
+            String lastName,
+            String email,
+            String role,
+            Boolean active,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt
+    ) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.role = role;
+        this.active = active;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     public static UserResponse fromUser(User user) {
 
-        UserResponse response = new UserResponse();
-
-        response.id = user.getId();
-        response.firstName = user.getFirstName();
-        response.lastName = user.getLastName();
-        response.email = user.getEmail();
-        response.role = user.getRole();
-        response.active = user.getActive();
-        response.createdAt = user.getCreatedAt();
-
-        return response;
+        return new UserResponse(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getActive(),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
     }
 
     public Long getId() {
@@ -49,7 +68,7 @@ public class UserResponse {
         return email;
     }
 
-    public UserRole getRole() {
+    public String getRole() {
         return role;
     }
 
@@ -59,5 +78,9 @@ public class UserResponse {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }

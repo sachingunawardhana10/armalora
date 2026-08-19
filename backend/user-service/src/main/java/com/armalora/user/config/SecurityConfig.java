@@ -54,6 +54,9 @@ public class SecurityConfig {
                                 "/actuator/health"
                         ).permitAll()
 
+                        .requestMatchers("/api/users/**")
+                        .hasRole("ADMIN")
+
                         // Everything else requires JWT
                         .anyRequest()
                         .authenticated()

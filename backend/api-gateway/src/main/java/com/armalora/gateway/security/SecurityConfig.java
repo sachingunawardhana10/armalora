@@ -2,13 +2,25 @@ package com.armalora.gateway.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.Customizer;
+
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
+
+    private final JwtAuthenticationConverter jwtAuthenticationConverter;
+
+    public SecurityConfig(
+            JwtAuthenticationConverter jwtAuthenticationConverter
+    ) {
+        this.jwtAuthenticationConverter =
+                jwtAuthenticationConverter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -20,25 +32,92 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // Public authentication endpoints
+                        // =========================
+                        // PUBLIC ENDPOINTS
+                        // =========================
+
                         .requestMatchers(
                                 "/api/auth/register",
-                                "/api/auth/login"
-                        ).permitAll()
-
-                        // Public health endpoint
-                        .requestMatchers(
+                                "/api/auth/login",
                                 "/actuator/health"
                         ).permitAll()
 
-                        // Everything else requires JWT
+
+                        // =========================
+                        // ADMIN - PRODUCT
+                        // =========================
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.POST,
+                                "/api/products/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.PUT,
+                                "/api/products/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.DELETE,
+                                "/api/products/**"
+                        ).hasRole("ADMIN")
+
+
+                        // =========================
+                        // ADMIN - INVENTORY
+                        // =========================
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.POST,
+                                "/api/inventory/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.PUT,
+                                "/api/inventory/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.DELETE,
+                                "/api/inventory/**"
+                        ).hasRole("ADMIN")
+
+
+                        // =========================
+                        // AUTHENTICATED USERS
+                        // =========================
+
+                        .requestMatchers(
+                                "/api/auth/me"
+                        ).authenticated()
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.GET,
+                                "/api/products/**"
+                        ).authenticated()
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.GET,
+                                "/api/inventory/**"
+                        ).authenticated()
+
+
+                        // =========================
+                        // EVERYTHING ELSE
+                        // =========================
+
                         .anyRequest().authenticated()
                 )
 
-                // JWT authentication
+                // =========================
+                // JWT AUTHENTICATION
+                // =========================
+
                 .oauth2ResourceServer(
                         oauth2 -> oauth2.jwt(
-                                Customizer.withDefaults()
+                                jwt -> jwt.jwtAuthenticationConverter(
+                                        jwtAuthenticationConverter
+                                )
                         )
                 );
 

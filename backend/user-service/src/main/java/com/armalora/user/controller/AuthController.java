@@ -3,6 +3,7 @@ package com.armalora.user.controller;
 import com.armalora.user.dto.LoginRequest;
 import com.armalora.user.dto.LoginResponse;
 import com.armalora.user.dto.RegisterRequest;
+import com.armalora.user.dto.UpdateProfileRequest;
 import com.armalora.user.dto.UserResponse;
 import com.armalora.user.entity.User;
 import com.armalora.user.service.UserService;
@@ -65,13 +66,32 @@ public class AuthController {
     // CURRENT USER
     // =========================
     @GetMapping("/me")
-    public ResponseEntity<String> getCurrentUser(
+    public ResponseEntity<UserResponse> getCurrentUser(
             org.springframework.security.core.Authentication authentication
     ) {
 
+        User user = userService.getUserByEmail(
+                authentication.getName()
+        );
+
         return ResponseEntity.ok(
-                "Authenticated user: "
-                        + authentication.getName()
+                UserResponse.fromUser(user)
+        );
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateProfile(
+            @Valid @RequestBody UpdateProfileRequest request,
+            org.springframework.security.core.Authentication authentication
+    ) {
+
+        User user = userService.updateProfile(
+                authentication.getName(),
+                request
+        );
+
+        return ResponseEntity.ok(
+                UserResponse.fromUser(user)
         );
     }
 }
