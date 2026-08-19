@@ -68,7 +68,6 @@ public class ProductService {
 
         product.setCategory(category);
 
-        // Active
         product.setActive(
                 request.getActive() != null
                         ? request.getActive()
