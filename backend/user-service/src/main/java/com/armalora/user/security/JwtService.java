@@ -3,6 +3,7 @@ package com.armalora.user.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,50 +15,47 @@ import java.util.Date;
 public class JwtService {
 
     private final SecretKey secretKey;
-    private final long expirationTime;
+    private final long expiration;
 
     public JwtService(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration}") long expirationTime
+            @Value("${jwt.expiration}") long expiration
     ) {
 
         this.secretKey = Keys.hmacShaKeyFor(
                 secret.getBytes(StandardCharsets.UTF_8)
         );
 
-        this.expirationTime = expirationTime;
+        this.expiration = expiration;
     }
 
+    // =========================================================
+    // Generate JWT
+    // =========================================================
+
     public String generateToken(
-            Long userId,
             String email,
             String role
     ) {
 
         Date now = new Date();
 
-        Date expiration = new Date(
-                now.getTime() + expirationTime
+        Date expiry = new Date(
+                now.getTime() + expiration
         );
 
         return Jwts.builder()
                 .subject(email)
-                .claim("userId", userId)
                 .claim("role", role)
                 .issuedAt(now)
-                .expiration(expiration)
+                .expiration(expiry)
                 .signWith(secretKey)
                 .compact();
     }
 
-    public Claims extractAllClaims(String token) {
-
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-    }
+    // =========================================================
+    // Extract email
+    // =========================================================
 
     public String extractEmail(String token) {
 
@@ -65,11 +63,9 @@ public class JwtService {
                 .getSubject();
     }
 
-    public Long extractUserId(String token) {
-
-        return extractAllClaims(token)
-                .get("userId", Long.class);
-    }
+    // =========================================================
+    // Extract role
+    // =========================================================
 
     public String extractRole(String token) {
 
@@ -77,18 +73,38 @@ public class JwtService {
                 .get("role", String.class);
     }
 
+    // =========================================================
+    // Validate token
+    // =========================================================
+
     public boolean isTokenValid(String token) {
 
         try {
 
             Claims claims = extractAllClaims(token);
 
-            return claims.getExpiration()
-                    .after(new Date());
+            Date expirationDate =
+                    claims.getExpiration();
 
-        } catch (Exception e) {
+            return expirationDate != null
+                    && expirationDate.after(new Date());
+
+        } catch (Exception exception) {
 
             return false;
         }
+    }
+
+    // =========================================================
+    // Extract claims
+    // =========================================================
+
+    private Claims extractAllClaims(String token) {
+
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

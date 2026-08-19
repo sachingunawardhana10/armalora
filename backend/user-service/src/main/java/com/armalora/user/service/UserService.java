@@ -29,6 +29,9 @@ public class UserService {
         this.jwtService = jwtService;
     }
 
+    // =========================
+    // REGISTER USER
+    // =========================
     public User registerUser(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -45,10 +48,9 @@ public class UserService {
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
 
+        // Hash password before storing
         user.setPassword(
-                passwordEncoder.encode(
-                        request.getPassword()
-                )
+                passwordEncoder.encode(request.getPassword())
         );
 
         // Normal registration creates CUSTOMER
@@ -59,6 +61,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // =========================
+    // LOGIN USER
+    // =========================
     public LoginResponse loginUser(
             String email,
             String password
@@ -71,6 +76,7 @@ public class UserService {
                         )
                 );
 
+        // Check whether account is active
         if (!user.getActive()) {
 
             throw new InvalidCredentialsException(
@@ -78,6 +84,7 @@ public class UserService {
             );
         }
 
+        // Check password
         if (!passwordEncoder.matches(
                 password,
                 user.getPassword()
@@ -88,27 +95,20 @@ public class UserService {
             );
         }
 
+        // Generate JWT
         String token = jwtService.generateToken(
-                user.getId(),
                 user.getEmail(),
                 user.getRole().name()
         );
 
+        // Return user information + JWT
         return new LoginResponse(
-                token,
-                "Bearer",
                 user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
                 user.getEmail(),
-                user.getRole().name()
-        );
-    }
-
-    public String generateToken(User user) {
-
-        return jwtService.generateToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRole().name()
+                user.getRole().name(),
+                token
         );
     }
 }

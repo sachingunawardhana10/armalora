@@ -26,13 +26,15 @@ public class AuthController {
         this.userService = userService;
     }
 
+    // =========================
+    // REGISTER
+    // =========================
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(
             @Valid @RequestBody RegisterRequest request
     ) {
 
-        User user =
-                userService.registerUser(request);
+        User user = userService.registerUser(request);
 
         UserResponse response =
                 UserResponse.fromUser(user);
@@ -42,6 +44,9 @@ public class AuthController {
                 .body(response);
     }
 
+    // =========================
+    // LOGIN
+    // =========================
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest request
@@ -56,6 +61,9 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    // =========================
+    // CURRENT USER
+    // =========================
     @GetMapping("/me")
     public ResponseEntity<String> getCurrentUser(
             org.springframework.security.core.Authentication authentication
@@ -66,5 +74,4 @@ public class AuthController {
                         + authentication.getName()
         );
     }
-
 }
