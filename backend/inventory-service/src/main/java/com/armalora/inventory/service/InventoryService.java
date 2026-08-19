@@ -139,6 +139,29 @@ public class InventoryService {
                 .toList();
     }
 
+    public InventoryResponse
+    getInventoryByProductAndVariant(
+            Long productId,
+            Long variantId) {
+
+        Inventory inventory =
+                inventoryRepository
+                        .findByProductIdAndVariantId(
+                                productId,
+                                variantId
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Inventory not found for product "
+                                                + productId
+                                                + " and variant "
+                                                + variantId
+                                )
+                        );
+
+        return convertToResponse(inventory);
+    }
+
     private InventoryResponse convertToResponse(
             Inventory inventory) {
 

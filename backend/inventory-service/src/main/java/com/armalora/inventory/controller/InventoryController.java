@@ -56,6 +56,23 @@ public class InventoryController {
         );
     }
 
+    @GetMapping(
+            "/product/{productId}/variant/{variantId}"
+    )
+    public ResponseEntity<InventoryResponse>
+    getInventoryByProductAndVariant(
+            @PathVariable Long productId,
+            @PathVariable Long variantId) {
+
+        return ResponseEntity.ok(
+                inventoryService
+                        .getInventoryByProductAndVariant(
+                                productId,
+                                variantId
+                        )
+        );
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<InventoryResponse>
     updateInventory(
