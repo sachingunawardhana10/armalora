@@ -17,6 +17,21 @@ public interface ProductRepository
 
     Page<Product> findByActiveTrue(Pageable pageable);
 
+    Page<Product> findByNameContainingIgnoreCase(
+            String name,
+            Pageable pageable
+    );
+
+    Page<Product> findByCategoryId(
+            Long categoryId,
+            Pageable pageable
+    );
+
+    Page<Product> findByActive(
+            Boolean active,
+            Pageable pageable
+    );
+
     List<Product> findByActiveTrueAndNameContainingIgnoreCase(
             String name
     );

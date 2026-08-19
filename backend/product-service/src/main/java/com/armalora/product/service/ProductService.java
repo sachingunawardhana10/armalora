@@ -228,6 +228,88 @@ public class ProductService {
                 .map(this::convertToResponse);
     }
 
+    public Page<ProductResponse> searchProducts(
+            String search,
+            Long categoryId,
+            Boolean active,
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ) {
+
+        // 1. Validate page number
+        if (page < 0) {
+            throw new IllegalArgumentException(
+                    "Page cannot be negative"
+            );
+        }
+
+        // 2. Validate page size
+        if (size < 1 || size > 100) {
+            throw new IllegalArgumentException(
+                    "Page size must be between 1 and 100"
+            );
+        }
+
+        // 3. Create an empty specification
+        Specification<Product> specification =
+                Specification.where((Specification<Product>) null);
+
+        // 4. Add name search condition
+        if (search != null && !search.isBlank()) {
+
+            specification = specification.and(
+                    ProductSpecification.hasName(search.trim())
+            );
+        }
+
+        // 5. Add category filter
+        if (categoryId != null) {
+
+            specification = specification.and(
+                    ProductSpecification.hasCategory(categoryId)
+            );
+        }
+
+        // 6. Add active filter
+        if (active != null) {
+
+            specification = specification.and(
+                    ProductSpecification.isActive()
+            );
+        }
+
+        // 7. Create sorting
+        Sort sort;
+
+        if ("asc".equalsIgnoreCase(direction)) {
+
+            sort = Sort.by(sortBy).ascending();
+
+        } else {
+
+            sort = Sort.by(sortBy).descending();
+        }
+
+        // 8. Create pagination
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                sort
+        );
+
+        // 9. Query database
+        Page<Product> products =
+                productRepository.findAll(
+                        specification,
+                        pageable
+                );
+
+        // 10. Convert Product -> ProductResponse
+        return products.map(this::convertToResponse);
+    }
+
     private ProductResponse convertToResponse(
             Product product) {
 
