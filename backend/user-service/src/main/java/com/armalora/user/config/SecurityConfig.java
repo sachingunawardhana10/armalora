@@ -5,17 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 
 @Configuration
 public class SecurityConfig {
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -23,18 +15,16 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-                // Disable CSRF for REST API
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // Configure endpoint authorization
                 .authorizeHttpRequests(auth -> auth
 
-                        // Registration is public
+                        // Public registration
                         .requestMatchers(
                                 "/api/auth/register"
                         ).permitAll()
 
-                        // Login is public
+                        // Public login
                         .requestMatchers(
                                 "/api/auth/login"
                         ).permitAll()

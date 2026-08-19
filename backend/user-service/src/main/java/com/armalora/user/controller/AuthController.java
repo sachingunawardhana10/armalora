@@ -1,13 +1,17 @@
 package com.armalora.user.controller;
 
 import com.armalora.user.dto.LoginRequest;
+import com.armalora.user.dto.LoginResponse;
 import com.armalora.user.dto.RegisterRequest;
 import com.armalora.user.dto.UserResponse;
 import com.armalora.user.entity.User;
 import com.armalora.user.service.UserService;
+
 import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,7 +20,9 @@ public class AuthController {
 
     private final UserService userService;
 
-    public AuthController(UserService userService) {
+    public AuthController(
+            UserService userService
+    ) {
         this.userService = userService;
     }
 
@@ -25,9 +31,11 @@ public class AuthController {
             @Valid @RequestBody RegisterRequest request
     ) {
 
-        User user = userService.registerUser(request);
+        User user =
+                userService.registerUser(request);
 
-        UserResponse response = UserResponse.fromUser(user);
+        UserResponse response =
+                UserResponse.fromUser(user);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -35,16 +43,27 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(
+    public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest request
     ) {
 
-        User user = userService.loginUser(
-                request.getEmail(),
-                request.getPassword()
-        );
+        User user =
+                userService.loginUser(
+                        request.getEmail(),
+                        request.getPassword()
+                );
 
-        UserResponse response = UserResponse.fromUser(user);
+        String token =
+                userService.generateToken(user);
+
+        UserResponse userResponse =
+                UserResponse.fromUser(user);
+
+        LoginResponse response =
+                new LoginResponse(
+                        token,
+                        userResponse
+                );
 
         return ResponseEntity.ok(response);
     }
