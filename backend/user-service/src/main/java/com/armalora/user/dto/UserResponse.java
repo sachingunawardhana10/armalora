@@ -18,35 +18,19 @@ public class UserResponse {
     public UserResponse() {
     }
 
-    public UserResponse(
-            Long id,
-            String firstName,
-            String lastName,
-            String email,
-            UserRole role,
-            Boolean active,
-            LocalDateTime createdAt
-    ) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.role = role;
-        this.active = active;
-        this.createdAt = createdAt;
-    }
-
     public static UserResponse fromUser(User user) {
 
-        return new UserResponse(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getRole(),
-                user.getActive(),
-                user.getCreatedAt()
-        );
+        UserResponse response = new UserResponse();
+
+        response.id = user.getId();
+        response.firstName = user.getFirstName();
+        response.lastName = user.getLastName();
+        response.email = user.getEmail();
+        response.role = user.getRole();
+        response.active = user.getActive();
+        response.createdAt = user.getCreatedAt();
+
+        return response;
     }
 
     public Long getId() {
