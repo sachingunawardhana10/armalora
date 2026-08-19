@@ -67,4 +67,16 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<String> getCurrentUser(
+            org.springframework.security.core.Authentication authentication
+    ) {
+
+        return ResponseEntity.ok(
+                "Authenticated user: "
+                        + authentication.getName()
+        );
+    }
+
 }
