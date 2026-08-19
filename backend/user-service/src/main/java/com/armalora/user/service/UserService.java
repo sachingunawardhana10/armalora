@@ -1,5 +1,6 @@
 package com.armalora.user.service;
 
+import com.armalora.user.dto.LoginResponse;
 import com.armalora.user.dto.RegisterRequest;
 import com.armalora.user.entity.User;
 import com.armalora.user.entity.UserRole;
@@ -58,13 +59,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User loginUser(
+    public LoginResponse loginUser(
             String email,
             String password
     ) {
 
-        User user = userRepository
-                .findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new InvalidCredentialsException(
                                 "Invalid email or password"
@@ -88,7 +88,19 @@ public class UserService {
             );
         }
 
-        return user;
+        String token = jwtService.generateToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name()
+        );
+
+        return new LoginResponse(
+                token,
+                "Bearer",
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name()
+        );
     }
 
     public String generateToken(User user) {

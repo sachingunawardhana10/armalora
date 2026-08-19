@@ -47,22 +47,10 @@ public class AuthController {
             @Valid @RequestBody LoginRequest request
     ) {
 
-        User user =
+        LoginResponse response =
                 userService.loginUser(
                         request.getEmail(),
                         request.getPassword()
-                );
-
-        String token =
-                userService.generateToken(user);
-
-        UserResponse userResponse =
-                UserResponse.fromUser(user);
-
-        LoginResponse response =
-                new LoginResponse(
-                        token,
-                        userResponse
                 );
 
         return ResponseEntity.ok(response);

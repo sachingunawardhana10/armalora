@@ -3,33 +3,45 @@ package com.armalora.user.dto;
 public class LoginResponse {
 
     private String token;
-
-    private UserResponse user;
+    private String tokenType;
+    private Long userId;
+    private String email;
+    private String role;
 
     public LoginResponse() {
     }
 
     public LoginResponse(
             String token,
-            UserResponse user
+            String tokenType,
+            Long userId,
+            String email,
+            String role
     ) {
         this.token = token;
-        this.user = user;
+        this.tokenType = tokenType;
+        this.userId = userId;
+        this.email = email;
+        this.role = role;
     }
 
     public String getToken() {
         return token;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public String getTokenType() {
+        return tokenType;
     }
 
-    public UserResponse getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(UserResponse user) {
-        this.user = user;
+    public String getEmail() {
+        return email;
+    }
+
+    public String getRole() {
+        return role;
     }
 }
