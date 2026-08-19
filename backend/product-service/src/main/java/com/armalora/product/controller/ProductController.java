@@ -123,6 +123,9 @@ public class ProductController {
             @RequestParam(required = false)
             BigDecimal maxPrice,
 
+            @RequestParam(required = false)
+            Boolean active,
+
             @RequestParam(defaultValue = "0")
             int page,
 
@@ -133,7 +136,8 @@ public class ProductController {
             String sortBy,
 
             @RequestParam(defaultValue = "asc")
-            String direction) {
+            String direction
+    ) {
 
         return ResponseEntity.ok(
                 productService.searchProducts(
@@ -141,6 +145,7 @@ public class ProductController {
                         categoryId,
                         minPrice,
                         maxPrice,
+                        active,
                         page,
                         size,
                         sortBy,

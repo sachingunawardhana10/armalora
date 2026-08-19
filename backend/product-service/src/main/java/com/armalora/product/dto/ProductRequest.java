@@ -1,7 +1,6 @@
 package com.armalora.product.dto;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,31 +11,29 @@ public class ProductRequest {
 
     @NotBlank(message = "Product name is required")
     @Size(
-            max = 150,
-            message = "Product name must not exceed 150 characters"
+            min = 2,
+            max = 200,
+            message = "Product name must be between 2 and 200 characters"
     )
     private String name;
 
     @Size(
             max = 2000,
-            message = "Description must not exceed 2000 characters"
+            message = "Description cannot exceed 2000 characters"
     )
     private String description;
 
     @NotNull(message = "Price is required")
     @DecimalMin(
-            value = "0.0",
-            inclusive = false,
+            value = "0.01",
             message = "Price must be greater than 0"
     )
     private BigDecimal price;
 
-    @NotNull(message = "Category is required")
+    @NotNull(message = "Category ID is required")
     private Long categoryId;
 
-    private String imageUrl;
-
-    private Boolean active;
+    private Boolean active = true;
 
     public ProductRequest() {
     }
@@ -65,12 +62,12 @@ public class ProductRequest {
         this.price = price;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public Boolean getActive() {
@@ -79,13 +76,5 @@ public class ProductRequest {
 
     public void setActive(Boolean active) {
         this.active = active;
-    }
-
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
     }
 }

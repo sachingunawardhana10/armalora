@@ -52,10 +52,14 @@ public class ProductService {
         // Create Product
         Product product = new Product();
 
-        product.setName(request.getName());
+        product.setName(
+                request.getName().trim()
+        );
 
         product.setDescription(
-                request.getDescription()
+                request.getDescription() == null
+                        ? null
+                        : request.getDescription().trim()
         );
 
         product.setPrice(
@@ -121,21 +125,21 @@ public class ProductService {
 
         // Update product
         existingProduct.setName(
-                request.getName()
+                request.getName().trim()
         );
 
         existingProduct.setDescription(
-                request.getDescription()
+                request.getDescription() == null
+                        ? null
+                        : request.getDescription().trim()
         );
 
         existingProduct.setPrice(
                 request.getPrice()
         );
 
-        // Update category
         existingProduct.setCategory(category);
 
-        // Update active if provided
         if (request.getActive() != null) {
 
             existingProduct.setActive(
@@ -165,72 +169,6 @@ public class ProductService {
             Long categoryId,
             BigDecimal minPrice,
             BigDecimal maxPrice,
-            int page,
-            int size,
-            String sortBy,
-            String direction) {
-
-        // Sorting
-        Sort sort;
-
-        if (direction.equalsIgnoreCase("desc")) {
-
-            sort = Sort.by(sortBy).descending();
-
-        } else {
-
-            sort = Sort.by(sortBy).ascending();
-        }
-
-        // Pagination
-        Pageable pageable =
-                PageRequest.of(
-                        page,
-                        size,
-                        sort
-                );
-
-        // Build specification
-        Specification<Product> specification =
-                Specification
-                        .where(
-                                ProductSpecification.isActive()
-                        )
-                        .and(
-                                ProductSpecification.hasName(
-                                        name
-                                )
-                        )
-                        .and(
-                                ProductSpecification.hasCategory(
-                                        categoryId
-                                )
-                        )
-                        .and(
-                                ProductSpecification
-                                        .priceGreaterThanOrEqual(
-                                                minPrice
-                                        )
-                        )
-                        .and(
-                                ProductSpecification
-                                        .priceLessThanOrEqual(
-                                                maxPrice
-                                        )
-                        );
-
-        // Execute query
-        return productRepository
-                .findAll(
-                        specification,
-                        pageable
-                )
-                .map(this::convertToResponse);
-    }
-
-    public Page<ProductResponse> searchProducts(
-            String search,
-            Long categoryId,
             Boolean active,
             int page,
             int size,
@@ -238,76 +176,122 @@ public class ProductService {
             String direction
     ) {
 
-        // 1. Validate page number
+        // Validate page
         if (page < 0) {
             throw new IllegalArgumentException(
                     "Page cannot be negative"
             );
         }
 
-        // 2. Validate page size
+        // Validate page size
         if (size < 1 || size > 100) {
             throw new IllegalArgumentException(
                     "Page size must be between 1 and 100"
             );
         }
 
-        // 3. Create an empty specification
-        Specification<Product> specification =
-                Specification.where((Specification<Product>) null);
+        // Validate price range
+        if (minPrice != null
+                && maxPrice != null
+                && minPrice.compareTo(maxPrice) > 0) {
 
-        // 4. Add name search condition
-        if (search != null && !search.isBlank()) {
-
-            specification = specification.and(
-                    ProductSpecification.hasName(search.trim())
+            throw new IllegalArgumentException(
+                    "Minimum price cannot be greater than maximum price"
             );
         }
 
-        // 5. Add category filter
-        if (categoryId != null) {
-
-            specification = specification.and(
-                    ProductSpecification.hasCategory(categoryId)
-            );
+        // Default sort field
+        if (sortBy == null || sortBy.isBlank()) {
+            sortBy = "id";
         }
 
-        // 6. Add active filter
-        if (active != null) {
-
-            specification = specification.and(
-                    ProductSpecification.isActive()
-            );
+        // Default direction
+        if (direction == null || direction.isBlank()) {
+            direction = "asc";
         }
 
-        // 7. Create sorting
         Sort sort;
 
-        if ("asc".equalsIgnoreCase(direction)) {
+        if ("desc".equalsIgnoreCase(direction)) {
+
+            sort = Sort.by(sortBy).descending();
+
+        } else if ("asc".equalsIgnoreCase(direction)) {
 
             sort = Sort.by(sortBy).ascending();
 
         } else {
 
-            sort = Sort.by(sortBy).descending();
+            throw new IllegalArgumentException(
+                    "Direction must be 'asc' or 'desc'"
+            );
         }
 
-        // 8. Create pagination
         Pageable pageable = PageRequest.of(
                 page,
                 size,
                 sort
         );
 
-        // 9. Query database
-        Page<Product> products =
-                productRepository.findAll(
+        Specification<Product> specification =
+                Specification.where((Specification<Product>) null);
+
+        // Name filter
+        if (name != null && !name.isBlank()) {
+
+            specification = specification.and(
+                    ProductSpecification.hasName(
+                            name.trim()
+                    )
+            );
+        }
+
+        // Category filter
+        if (categoryId != null) {
+
+            specification = specification.and(
+                    ProductSpecification.hasCategory(
+                            categoryId
+                    )
+            );
+        }
+
+        // Minimum price
+        if (minPrice != null) {
+
+            specification = specification.and(
+                    ProductSpecification
+                            .priceGreaterThanOrEqual(
+                                    minPrice
+                            )
+            );
+        }
+
+        // Maximum price
+        if (maxPrice != null) {
+
+            specification = specification.and(
+                    ProductSpecification
+                            .priceLessThanOrEqual(
+                                    maxPrice
+                            )
+            );
+        }
+
+        // Active filter
+        if (active != null && active) {
+
+            specification = specification.and(
+                    ProductSpecification.isActive()
+            );
+        }
+
+        return productRepository
+                .findAll(
                         specification,
                         pageable
-                );
-
-        // 10. Convert Product -> ProductResponse
-        return products.map(this::convertToResponse);
+                )
+                .map(this::convertToResponse);
     }
 
     private ProductResponse convertToResponse(
