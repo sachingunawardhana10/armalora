@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -70,6 +72,19 @@ public class OrderController {
         return ResponseEntity.ok(
                 orderService.getUserOrder(
                         orderNumber,
+                        userId
+                )
+        );
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<OrderResponse>>
+    getOrdersByUserId(
+            @PathVariable Long userId
+    ) {
+
+        return ResponseEntity.ok(
+                orderService.getOrdersByUserId(
                         userId
                 )
         );

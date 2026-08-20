@@ -29,10 +29,6 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    // =========================================================
-    // CREATE ORDER
-    // =========================================================
-
     @Transactional
     public OrderResponse createOrder(
             Long userId,
@@ -131,10 +127,6 @@ public class OrderService {
         );
     }
 
-    // =========================================================
-    // GET ORDER BY ID
-    // =========================================================
-
     @Transactional(readOnly = true)
     public OrderResponse getOrderById(
             Long id
@@ -153,10 +145,6 @@ public class OrderService {
                 order
         );
     }
-
-    // =========================================================
-    // GET ORDER BY ORDER NUMBER
-    // =========================================================
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderByNumber(
@@ -178,10 +166,6 @@ public class OrderService {
                 order
         );
     }
-
-    // =========================================================
-    // GET USER ORDER
-    // =========================================================
 
     @Transactional(readOnly = true)
     public OrderResponse getUserOrder(
@@ -206,10 +190,6 @@ public class OrderService {
         );
     }
 
-    // =========================================================
-    // CALCULATE ORDER TOTAL
-    // =========================================================
-
     private BigDecimal calculateTotal(
             List<OrderItemRequest> items
     ) {
@@ -229,10 +209,6 @@ public class OrderService {
                 );
     }
 
-    // =========================================================
-    // GENERATE ORDER NUMBER
-    // =========================================================
-
     private String generateOrderNumber() {
 
         return "ARM-"
@@ -244,10 +220,6 @@ public class OrderService {
                 )
                 .toUpperCase();
     }
-
-    // =========================================================
-    // CONVERT ORDER → RESPONSE
-    // =========================================================
 
     private OrderResponse convertToResponse(
             Order order
@@ -308,10 +280,6 @@ public class OrderService {
         return response;
     }
 
-    // =========================================================
-    // CONVERT ORDER ITEM → RESPONSE
-    // =========================================================
-
     private OrderItemResponse
     convertItemToResponse(
             OrderItem item
@@ -345,5 +313,17 @@ public class OrderService {
         );
 
         return response;
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getOrdersByUserId(
+            Long userId
+    ) {
+
+        return orderRepository
+                .findByUserId(userId)
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
     }
 }
