@@ -1,12 +1,18 @@
 package com.armalora.order.service;
 
+import com.armalora.order.client.InventoryClient;
+import com.armalora.order.client.ProductClient;
 import com.armalora.order.dto.CreateOrderRequest;
+import com.armalora.order.dto.InventoryResponse;
 import com.armalora.order.dto.OrderItemRequest;
 import com.armalora.order.dto.OrderItemResponse;
 import com.armalora.order.dto.OrderResponse;
+import com.armalora.order.dto.ProductResponse;
 import com.armalora.order.entity.Order;
 import com.armalora.order.entity.OrderItem;
 import com.armalora.order.entity.OrderStatus;
+import com.armalora.order.exception.InsufficientInventoryException;
+import com.armalora.order.exception.InvalidOrderStatusException;
 import com.armalora.order.exception.OrderNotFoundException;
 import com.armalora.order.repository.OrderRepository;
 
@@ -22,11 +28,23 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final ProductClient productClient;
+    private final InventoryClient inventoryClient;
 
     public OrderService(
-            OrderRepository orderRepository
+            OrderRepository orderRepository,
+            ProductClient productClient,
+            InventoryClient inventoryClient
     ) {
-        this.orderRepository = orderRepository;
+
+        this.orderRepository =
+                orderRepository;
+
+        this.productClient =
+                productClient;
+
+        this.inventoryClient =
+                inventoryClient;
     }
 
     @Transactional
@@ -42,7 +60,7 @@ public class OrderService {
                 generateOrderNumber()
         );
 
-        // Set authenticated user
+        // Authenticated user
         order.setUserId(userId);
 
         // New orders start as PENDING
@@ -50,27 +68,117 @@ public class OrderService {
                 OrderStatus.PENDING
         );
 
-        // Set shipping address
+        // Shipping address
         order.setShippingAddress(
                 request.getShippingAddress()
         );
 
-        // Calculate total amount
         BigDecimal totalAmount =
-                calculateTotal(
-                        request.getItems()
-                );
+                BigDecimal.ZERO;
 
-        order.setTotalAmount(
-                totalAmount
-        );
-
-        // Create order items
         List<OrderItem> orderItems =
                 new ArrayList<>();
 
         for (OrderItemRequest itemRequest :
                 request.getItems()) {
+
+            ProductResponse product =
+                    productClient.getProductById(
+                            itemRequest.getProductId()
+                    );
+
+
+            if (product == null) {
+
+                throw new RuntimeException(
+                        "Product not found: "
+                                + itemRequest.getProductId()
+                );
+            }
+
+            if (Boolean.FALSE.equals(
+                    product.getActive()
+            )) {
+
+                throw new RuntimeException(
+                        "Product is not active: "
+                                + itemRequest.getProductId()
+                );
+            }
+
+
+            InventoryResponse inventory;
+
+            if (itemRequest.getVariantId() != null) {
+
+                inventory =
+                        inventoryClient
+                                .getInventoryByProductAndVariant(
+                                        itemRequest.getProductId(),
+                                        itemRequest.getVariantId()
+                                );
+
+            } else {
+
+                List<InventoryResponse>
+                        inventories =
+                        inventoryClient
+                                .getInventoryByProductId(
+                                        itemRequest.getProductId()
+                                );
+
+                if (inventories.isEmpty()) {
+
+                    throw new RuntimeException(
+                            "Inventory not found for product: "
+                                    + itemRequest.getProductId()
+                    );
+                }
+
+                inventory =
+                        inventories.get(0);
+            }
+
+            if (inventory == null) {
+
+                throw new RuntimeException(
+                        "Inventory not found for product: "
+                                + itemRequest.getProductId()
+                );
+            }
+
+            Integer availableQuantity =
+                    inventory.getAvailableQuantity();
+
+            if (availableQuantity == null) {
+
+                availableQuantity =
+                        inventory.getQuantity()
+                                - inventory
+                                .getReservedQuantity();
+            }
+
+            if (availableQuantity
+                    < itemRequest.getQuantity()) {
+
+                throw new InsufficientInventoryException(
+                        itemRequest.getProductId(),
+                        itemRequest.getVariantId(),
+                        itemRequest.getQuantity(),
+                        availableQuantity
+                );
+            }
+
+
+            BigDecimal unitPrice =
+                    product.getPrice();
+
+            BigDecimal subtotal =
+                    unitPrice.multiply(
+                            BigDecimal.valueOf(
+                                    itemRequest.getQuantity()
+                            )
+                    );
 
             OrderItem orderItem =
                     new OrderItem();
@@ -88,23 +196,13 @@ public class OrderService {
             );
 
             orderItem.setUnitPrice(
-                    itemRequest.getUnitPrice()
+                    unitPrice
             );
-
-            BigDecimal subtotal =
-                    itemRequest
-                            .getUnitPrice()
-                            .multiply(
-                                    BigDecimal.valueOf(
-                                            itemRequest.getQuantity()
-                                    )
-                            );
 
             orderItem.setSubtotal(
                     subtotal
             );
 
-            // Establish relationship
             orderItem.setOrder(
                     order
             );
@@ -112,13 +210,23 @@ public class OrderService {
             orderItems.add(
                     orderItem
             );
+
+            // Add subtotal to total
+            totalAmount =
+                    totalAmount.add(
+                            subtotal
+                    );
         }
+
 
         order.setItems(
                 orderItems
         );
 
-        // Save order and items
+        order.setTotalAmount(
+                totalAmount
+        );
+
         Order savedOrder =
                 orderRepository.save(order);
 
@@ -190,23 +298,89 @@ public class OrderService {
         );
     }
 
-    private BigDecimal calculateTotal(
-            List<OrderItemRequest> items
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getOrdersByUserId(
+            Long userId
     ) {
 
-        return items.stream()
-                .map(item ->
-                        item.getUnitPrice()
-                                .multiply(
-                                        BigDecimal.valueOf(
-                                                item.getQuantity()
-                                        )
+        return orderRepository
+                .findByUserId(userId)
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    @Transactional
+    public OrderResponse updateOrderStatus(
+            Long id,
+            OrderStatus newStatus
+    ) {
+
+        Order order =
+                orderRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new OrderNotFoundException(
+                                        id
                                 )
-                )
-                .reduce(
-                        BigDecimal.ZERO,
-                        BigDecimal::add
-                );
+                        );
+
+        OrderStatus currentStatus =
+                order.getStatus();
+
+        if (!isValidStatusTransition(
+                currentStatus,
+                newStatus
+        )) {
+
+            throw new InvalidOrderStatusException(
+                    "Cannot change order status from "
+                            + currentStatus
+                            + " to "
+                            + newStatus
+            );
+        }
+
+        order.setStatus(
+                newStatus
+        );
+
+        Order updatedOrder =
+                orderRepository.save(order);
+
+        return convertToResponse(
+                updatedOrder
+        );
+    }
+
+    private boolean isValidStatusTransition(
+            OrderStatus current,
+            OrderStatus next
+    ) {
+
+        if (current == OrderStatus.PENDING) {
+
+            return next == OrderStatus.CONFIRMED
+                    || next == OrderStatus.CANCELLED;
+        }
+
+        if (current == OrderStatus.CONFIRMED) {
+
+            return next == OrderStatus.PROCESSING
+                    || next == OrderStatus.CANCELLED;
+        }
+
+        if (current == OrderStatus.PROCESSING) {
+
+            return next == OrderStatus.SHIPPED;
+        }
+
+        if (current == OrderStatus.SHIPPED) {
+
+            return next == OrderStatus.DELIVERED;
+        }
+
+        return false;
     }
 
     private String generateOrderNumber() {
@@ -260,7 +434,6 @@ public class OrderService {
                 order.getUpdatedAt()
         );
 
-        // Convert order items
         if (order.getItems() != null) {
 
             List<OrderItemResponse>
@@ -313,17 +486,5 @@ public class OrderService {
         );
 
         return response;
-    }
-
-    @Transactional(readOnly = true)
-    public List<OrderResponse> getOrdersByUserId(
-            Long userId
-    ) {
-
-        return orderRepository
-                .findByUserId(userId)
-                .stream()
-                .map(this::convertToResponse)
-                .toList();
     }
 }
