@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Explore the Armalora clothing collection."
+    >
+
+    <title>Shop | Armalora</title>
+
+
+    <!-- Global CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <!-- Navbar CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/navbar.css"
+    >
+
+    <!-- Footer CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/footer.css"
+    >
+
+    <!-- Product Catalog CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/products.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- ========================================
+         Announcement Bar
+         ======================================== -->
+
+    <div class="announcement-bar">
+        Free shipping on orders over $100
+    </div>
+
+
+    <!-- ========================================
+         Navbar
+         ======================================== -->
+
+    <header class="navbar">
+
+        <div class="container navbar-container">
+
+
+            <!-- Mobile Menu -->
+
+            <button
+                class="mobile-menu-button"
+                id="mobileMenuButton"
+                type="button"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+            >
+                ☰
+            </button>
+
+
+            <!-- Logo -->
+
+            <a
+                href="index.html"
+                class="navbar-logo"
+            >
+                Armalora
+            </a>
+
+
+            <!-- Desktop Navigation -->
+
+            <nav
+                class="navbar-menu"
+                aria-label="Main navigation"
+            >
+
+                <a
+                    href="index.html"
+                    class="navbar-link"
+                >
+                    Home
+                </a>
+
+                <a
+                    href="products.html"
+                    class="navbar-link active"
+                >
+                    Shop
+                </a>
+
+                <a
+                    href="#"
+                    class="navbar-link"
+                >
+                    Collections
+                </a>
+
+                <a
+                    href="#"
+                    class="navbar-link"
+                >
+                    About
+                </a>
+
+            </nav>
+
+
+            <!-- Actions -->
+
+            <div class="navbar-actions">
+
+                <button
+                    class="navbar-action"
+                    type="button"
+                    aria-label="Search"
+                >
+                    ⌕
+                </button>
+
+                <button
+                    class="navbar-action"
+                    type="button"
+                    aria-label="Account"
+                >
+                    ♙
+                </button>
+
+                <button
+                    class="navbar-action"
+                    type="button"
+                    aria-label="Shopping cart"
+                >
+                    🛒
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- Mobile Menu -->
+
+        <div
+            class="mobile-menu"
+            id="mobileMenu"
+        >
+
+            <nav aria-label="Mobile navigation">
+
+                <ul class="mobile-menu-list">
+
+                    <li>
+                        <a
+                            href="index.html"
+                            class="mobile-menu-link"
+                        >
+                            Home
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            href="products.html"
+                            class="mobile-menu-link"
+                        >
+                            Shop
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            href="#"
+                            class="mobile-menu-link"
+                        >
+                            Collections
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            href="#"
+                            class="mobile-menu-link"
+                        >
+                            About
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================
+         Main
+         ======================================== -->
+
+    <main>
+
+
+        <!-- Catalog Header -->
+
+        <section class="catalog-header">
+
+            <div class="container">
+
+                <div class="catalog-header-content">
+
+                    <p class="catalog-eyebrow">
+                        Armalora Collection
+                    </p>
+
+                    <h1 class="catalog-title">
+                        Shop
+                    </h1>
+
+                    <p class="catalog-description">
+                        Explore our collection of contemporary
+                        clothing, handcrafted details, and
+                        timeless everyday pieces.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Catalog Controls -->
+
+        <section class="catalog-controls">
+
+            <div class="container">
+
+                <div class="category-navigation">
+
+
+                    <!-- Categories -->
+
+                    <div class="category-list">
+
+                        <button
+                            type="button"
+                            class="category-button active"
+                            data-category="all"
+                        >
+                            All
+                        </button>
+
+                        <button
+                            type="button"
+                            class="category-button"
+                            data-category="essentials"
+                        >
+                            Essentials
+                        </button>
+
+                        <button
+                            type="button"
+                            class="category-button"
+                            data-category="handcrafted"
+                        >
+                            Handcrafted
+                        </button>
+
+                        <button
+                            type="button"
+                            class="category-button"
+                            data-category="new-arrivals"
+                        >
+                            New Arrivals
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Product Area -->
+
+        <section class="section">
+
+            <div class="container">
+
+
+                <!-- Catalog Meta -->
+
+                <div class="catalog-meta">
+
+                    <p
+                        class="product-count"
+                        id="productCount"
+                    >
+                        Showing 8 products
+                    </p>
+
+
+                    <div class="sort-wrapper">
+
+                        <label
+                            for="sortSelect"
+                            class="sort-label"
+                        >
+                            Sort by
+                        </label>
+
+                        <select
+                            id="sortSelect"
+                            class="sort-select"
+                        >
+
+                            <option value="featured">
+                                Featured
+                            </option>
+
+                            <option value="price-low">
+                                Price: Low to High
+                            </option>
+
+                            <option value="price-high">
+                                Price: High to Low
+                            </option>
+
+                            <option value="name">
+                                Name
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Product Grid -->
+
+                <div
+                    class="catalog-product-grid"
+                    id="productGrid"
+                >
+                </div>
+
+
+                <!-- Empty State -->
+
+                <div
+                    class="empty-products"
+                    id="emptyProducts"
+                >
+
+                    <h2 class="empty-products-title">
+                        No products found.
+                    </h2>
+
+                    <p class="empty-products-description">
+                        Try selecting another category.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         Footer
+         ======================================== -->
+
+    <footer class="footer">
+
+        <div class="container">
+
+            <div class="footer-grid">
+
+
+                <!-- Brand -->
+
+                <div class="footer-brand">
+
+                    <div class="footer-logo">
+                        Armalora
+                    </div>
+
+                    <p class="footer-description">
+                        Premium clothing and handcrafted fashion,
+                        created with attention to detail and
+                        timeless design.
+                    </p>
+
+                </div>
+
+
+                <!-- Shop -->
+
+                <div>
+
+                    <h3 class="footer-title">
+                        Shop
+                    </h3>
+
+                    <ul class="footer-links">
+
+                        <li>
+                            <a
+                                href="products.html"
+                                class="footer-link"
+                            >
+                                All Products
+                            </a>
+                        </li>
+
+                        <li>
+                            <a
+                                href="#"
+                                class="footer-link"
+                            >
+                                New Arrivals
+                            </a>
+                        </li>
+
+                        <li>
+                            <a
+                                href="#"
+                                class="footer-link"
+                            >
+                                Collections
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+                <!-- Information -->
+
+                <div>
+
+                    <h3 class="footer-title">
+                        Information
+                    </h3>
+
+                    <ul class="footer-links">
+
+                        <li>
+                            <a
+                                href="#"
+                                class="footer-link"
+                            >
+                                About Us
+                            </a>
+                        </li>
+
+                        <li>
+                            <a
+                                href="#"
+                                class="footer-link"
+                            >
+                                Contact
+                            </a>
+                        </li>
+
+                        <li>
+                            <a
+                                href="#"
+                                class="footer-link"
+                            >
+                                Shipping
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+                <!-- Customer Care -->
+
+                <div>
+
+                    <h3 class="footer-title">
+                        Customer Care
+                    </h3>
+
+                    <ul class="footer-links">
+
+                        <li>
+                            <a
+                                href="#"
+                                class="footer-link"
+                            >
+                                FAQ
+                            </a>
+                        </li>
+
+                        <li>
+                            <a
+                                href="#"
+                                class="footer-link"
+                            >
+                                Returns
+                            </a>
+                        </li>
+
+                        <li>
+                            <a
+                                href="#"
+                                class="footer-link"
+                            >
+                                Privacy Policy
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+
+            <div class="footer-bottom">
+
+                <span>
+                    © 2026 Armalora. All rights reserved.
+                </span>
+
+                <span>
+                    Crafted with intention.
+                </span>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <!-- JavaScript -->
+
+    <script src="js/app.js"></script>
+
+    <script src="js/navbar.js"></script>
+
+    <script src="js/products.js"></script>
+
+</body>
+
+</html>
