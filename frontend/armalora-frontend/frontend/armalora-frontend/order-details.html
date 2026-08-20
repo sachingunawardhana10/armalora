@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Order Details | Armalora
+    </title>
+
+
+    <!-- ========================================
+         Main Styles
+         ======================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/navbar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/footer.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/order-details.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- ========================================
+         Navigation
+         ======================================== -->
+
+    <div id="navbar-container"></div>
+
+
+    <!-- ========================================
+         Main Content
+         ======================================== -->
+
+    <main class="order-details-page">
+
+
+        <!-- ========================================
+             Back Link
+             ======================================== -->
+
+        <a
+            href="orders.html"
+            class="order-back-link"
+        >
+
+            ← Back to My Orders
+
+        </a>
+
+
+        <!-- ========================================
+             Order Header
+             ======================================== -->
+
+        <section
+            class="order-details-header"
+            id="orderDetailsHeader"
+        >
+
+            <div>
+
+                <p class="order-details-eyebrow">
+                    Order Details
+                </p>
+
+
+                <h1
+                    class="order-details-title"
+                    id="orderNumber"
+                >
+                    Order
+                </h1>
+
+
+                <p
+                    class="order-details-date"
+                    id="orderDate"
+                >
+                    -
+                </p>
+
+            </div>
+
+
+            <span
+                class="order-details-status"
+                id="orderStatus"
+            >
+                Confirmed
+            </span>
+
+        </section>
+
+
+        <!-- ========================================
+             Customer / Delivery / Payment
+             ======================================== -->
+
+        <section
+            class="order-information-grid"
+        >
+
+
+            <!-- Customer -->
+
+            <div class="order-information-card">
+
+                <p class="order-information-label">
+                    Customer
+                </p>
+
+
+                <h2
+                    id="customerName"
+                    class="order-information-value"
+                >
+                    -
+                </h2>
+
+
+                <p
+                    id="customerEmail"
+                    class="order-information-secondary"
+                >
+                    -
+                </p>
+
+            </div>
+
+
+            <!-- Delivery -->
+
+            <div class="order-information-card">
+
+                <p class="order-information-label">
+                    Delivery
+                </p>
+
+
+                <h2
+                    id="deliveryMethod"
+                    class="order-information-value"
+                >
+                    -
+                </h2>
+
+
+                <p
+                    id="deliveryLocation"
+                    class="order-information-secondary"
+                >
+                    -
+                </p>
+
+            </div>
+
+
+            <!-- Payment -->
+
+            <div class="order-information-card">
+
+                <p class="order-information-label">
+                    Payment
+                </p>
+
+
+                <h2
+                    id="paymentMethod"
+                    class="order-information-value"
+                >
+                    -
+                </h2>
+
+
+                <p
+                    id="paymentStatus"
+                    class="order-information-secondary"
+                >
+                    Paid
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ========================================
+             Products
+             ======================================== -->
+
+        <section class="order-products-section">
+
+
+            <div class="order-section-heading">
+
+                <p class="order-details-eyebrow">
+                    Order Items
+                </p>
+
+
+                <h2>
+                    Your Items
+                </h2>
+
+            </div>
+
+
+            <div
+                class="order-products"
+                id="orderProducts"
+            >
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ========================================
+             Order Summary
+             ======================================== -->
+
+        <section class="order-summary-section">
+
+
+            <div class="order-summary">
+
+                <div class="order-summary-row">
+
+                    <span>
+                        Subtotal
+                    </span>
+
+                    <span id="orderSubtotal">
+                        LKR 0
+                    </span>
+
+                </div>
+
+
+                <div class="order-summary-row">
+
+                    <span>
+                        Shipping
+                    </span>
+
+                    <span id="orderShipping">
+                        LKR 0
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="order-summary-row order-summary-total"
+                >
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong id="orderTotal">
+                        LKR 0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- ========================================
+         Footer
+         ======================================== -->
+
+    <div id="footer-container"></div>
+
+
+    <!-- ========================================
+         JavaScript
+         ======================================== -->
+
+    <script
+        src="js/navbar.js"
+    ></script>
+
+    <script
+        src="js/app.js"
+    ></script>
+
+    <script
+        src="js/order-details.js"
+    ></script>
+
+
+</body>
+
+</html>
