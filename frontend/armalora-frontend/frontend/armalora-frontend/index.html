@@ -17,16 +17,183 @@
     <title>Armalora</title>
 
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+<link rel="stylesheet" href="css/footer.css">
 
 </head>
 
 <body>
 
+    <!-- Announcement Bar -->
+
+    <div class="announcement-bar">
+        Free shipping on orders over $100
+    </div>
+
+
+    <!-- Navbar -->
+
+    <header class="navbar">
+
+        <div class="container navbar-container">
+
+            <!-- Mobile Menu Button -->
+
+            <button
+                class="mobile-menu-button"
+                id="mobileMenuButton"
+                type="button"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+            >
+                ☰
+            </button>
+
+
+            <!-- Logo -->
+
+            <a
+                href="index.html"
+                class="navbar-logo"
+            >
+                Armalora
+            </a>
+
+
+            <!-- Desktop Navigation -->
+
+            <nav
+                class="navbar-menu"
+                aria-label="Main navigation"
+            >
+
+                <a
+                    href="index.html"
+                    class="navbar-link active"
+                >
+                    Home
+                </a>
+
+                <a
+                    href="#"
+                    class="navbar-link"
+                >
+                    Shop
+                </a>
+
+                <a
+                    href="#"
+                    class="navbar-link"
+                >
+                    Collections
+                </a>
+
+                <a
+                    href="#"
+                    class="navbar-link"
+                >
+                    About
+                </a>
+
+            </nav>
+
+
+            <!-- Actions -->
+
+            <div class="navbar-actions">
+
+                <button
+                    class="navbar-action"
+                    type="button"
+                    aria-label="Search"
+                >
+                    ⌕
+                </button>
+
+                <button
+                    class="navbar-action"
+                    type="button"
+                    aria-label="Account"
+                >
+                    ♙
+                </button>
+
+                <button
+                    class="navbar-action"
+                    type="button"
+                    aria-label="Shopping cart"
+                >
+                    🛒
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- Mobile Menu -->
+
+        <div
+            class="mobile-menu"
+            id="mobileMenu"
+        >
+
+            <nav aria-label="Mobile navigation">
+
+                <ul class="mobile-menu-list">
+
+                    <li>
+                        <a
+                            href="index.html"
+                            class="mobile-menu-link"
+                        >
+                            Home
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            href="#"
+                            class="mobile-menu-link"
+                        >
+                            Shop
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            href="#"
+                            class="mobile-menu-link"
+                        >
+                            Collections
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            href="#"
+                            class="mobile-menu-link"
+                        >
+                            About
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- Temporary Page Content -->
+
     <main>
 
         <section class="section">
 
-            <div class="container">
+            <div class="container text-center">
 
                 <h1 class="heading-display">
                     Armalora
@@ -36,13 +203,22 @@
                     Premium fashion, thoughtfully crafted.
                 </p>
 
-                <div class="flex gap-4" style="margin-top: 2rem;">
+                <div
+                    class="flex gap-4"
+                    style="margin-top: 2rem; justify-content: center;"
+                >
 
-                    <a href="#" class="btn btn-primary">
+                    <a
+                        href="#"
+                        class="btn btn-primary"
+                    >
                         Shop Collection
                     </a>
 
-                    <a href="#" class="btn btn-secondary">
+                    <a
+                        href="#"
+                        class="btn btn-secondary"
+                    >
                         Explore
                     </a>
 
@@ -54,7 +230,154 @@
 
     </main>
 
+
+    <!-- Footer -->
+
+    <footer class="footer">
+
+        <div class="container">
+
+            <div class="footer-grid">
+
+                <!-- Brand -->
+
+                <div class="footer-brand">
+
+                    <div class="footer-logo">
+                        Armalora
+                    </div>
+
+                    <p class="footer-description">
+                        Premium clothing and handcrafted fashion,
+                        created with attention to detail and timeless
+                        design.
+                    </p>
+
+                </div>
+
+
+                <!-- Shop -->
+
+                <div>
+
+                    <h3 class="footer-title">
+                        Shop
+                    </h3>
+
+                    <ul class="footer-links">
+
+                        <li>
+                            <a href="#" class="footer-link">
+                                All Products
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="footer-link">
+                                New Arrivals
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="footer-link">
+                                Collections
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+                <!-- Information -->
+
+                <div>
+
+                    <h3 class="footer-title">
+                        Information
+                    </h3>
+
+                    <ul class="footer-links">
+
+                        <li>
+                            <a href="#" class="footer-link">
+                                About Us
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="footer-link">
+                                Contact
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="footer-link">
+                                Shipping
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+                <!-- Customer -->
+
+                <div>
+
+                    <h3 class="footer-title">
+                        Customer Care
+                    </h3>
+
+                    <ul class="footer-links">
+
+                        <li>
+                            <a href="#" class="footer-link">
+                                FAQ
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="footer-link">
+                                Returns
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="footer-link">
+                                Privacy Policy
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+
+            <!-- Footer Bottom -->
+
+            <div class="footer-bottom">
+
+                <span>
+                    © 2026 Armalora. All rights reserved.
+                </span>
+
+                <span>
+                    Crafted with intention.
+                </span>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
     <script src="js/app.js"></script>
+    <script src="js/navbar.js"></script>
 
 </body>
 </html>
