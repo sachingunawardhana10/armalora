@@ -9,13 +9,25 @@ import java.util.List;
 public class OrderResponse {
 
     private Long id;
+
     private String orderNumber;
+
     private Long userId;
+
     private BigDecimal totalAmount;
+
     private OrderStatus status;
+
+    private String shippingAddress;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
+
     private List<OrderItemResponse> items;
+
+    public OrderResponse() {
+    }
 
     public Long getId() {
         return id;
@@ -29,7 +41,9 @@ public class OrderResponse {
         return orderNumber;
     }
 
-    public void setOrderNumber(String orderNumber) {
+    public void setOrderNumber(
+            String orderNumber
+    ) {
         this.orderNumber = orderNumber;
     }
 
@@ -45,7 +59,9 @@ public class OrderResponse {
         return totalAmount;
     }
 
-    public void setTotalAmount(BigDecimal totalAmount) {
+    public void setTotalAmount(
+            BigDecimal totalAmount
+    ) {
         this.totalAmount = totalAmount;
     }
 
@@ -53,15 +69,29 @@ public class OrderResponse {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(
+            OrderStatus status
+    ) {
         this.status = status;
+    }
+
+    public String getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(
+            String shippingAddress
+    ) {
+        this.shippingAddress = shippingAddress;
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(
+            LocalDateTime createdAt
+    ) {
         this.createdAt = createdAt;
     }
 
@@ -69,7 +99,9 @@ public class OrderResponse {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(
+            LocalDateTime updatedAt
+    ) {
         this.updatedAt = updatedAt;
     }
 
@@ -77,7 +109,9 @@ public class OrderResponse {
         return items;
     }
 
-    public void setItems(List<OrderItemResponse> items) {
+    public void setItems(
+            List<OrderItemResponse> items
+    ) {
         this.items = items;
     }
 }

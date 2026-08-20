@@ -7,13 +7,14 @@ import com.armalora.order.dto.OrderResponse;
 import com.armalora.order.entity.Order;
 import com.armalora.order.entity.OrderItem;
 import com.armalora.order.entity.OrderStatus;
+import com.armalora.order.exception.OrderNotFoundException;
 import com.armalora.order.repository.OrderRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,82 +41,99 @@ public class OrderService {
 
         Order order = new Order();
 
+        // Generate unique order number
         order.setOrderNumber(
                 generateOrderNumber()
         );
 
+        // Set authenticated user
         order.setUserId(userId);
 
+        // New orders start as PENDING
         order.setStatus(
                 OrderStatus.PENDING
         );
 
-        order.setCreatedAt(
-                LocalDateTime.now()
+        // Set shipping address
+        order.setShippingAddress(
+                request.getShippingAddress()
         );
 
-        order.setUpdatedAt(
-                LocalDateTime.now()
-        );
-
+        // Calculate total amount
         BigDecimal totalAmount =
-                BigDecimal.ZERO;
+                calculateTotal(
+                        request.getItems()
+                );
+
+        order.setTotalAmount(
+                totalAmount
+        );
+
+        // Create order items
+        List<OrderItem> orderItems =
+                new ArrayList<>();
 
         for (OrderItemRequest itemRequest :
                 request.getItems()) {
 
-            OrderItem item =
+            OrderItem orderItem =
                     new OrderItem();
 
-            item.setProductId(
+            orderItem.setProductId(
                     itemRequest.getProductId()
             );
 
-            item.setVariantId(
+            orderItem.setVariantId(
                     itemRequest.getVariantId()
             );
 
-            item.setQuantity(
+            orderItem.setQuantity(
                     itemRequest.getQuantity()
             );
 
-            /*
-             * Product price will be retrieved from
-             * Product Service in a later batch.
-             *
-             * For now this is a temporary value
-             * so that the order workflow can be
-             * implemented and tested independently.
-             */
-            BigDecimal unitPrice =
-                    BigDecimal.ZERO;
-
-            item.setUnitPrice(unitPrice);
+            orderItem.setUnitPrice(
+                    itemRequest.getUnitPrice()
+            );
 
             BigDecimal subtotal =
-                    unitPrice.multiply(
-                            BigDecimal.valueOf(
-                                    itemRequest.getQuantity()
-                            )
-                    );
+                    itemRequest
+                            .getUnitPrice()
+                            .multiply(
+                                    BigDecimal.valueOf(
+                                            itemRequest.getQuantity()
+                                    )
+                            );
 
-            item.setSubtotal(subtotal);
+            orderItem.setSubtotal(
+                    subtotal
+            );
 
-            item.setOrder(order);
+            // Establish relationship
+            orderItem.setOrder(
+                    order
+            );
 
-            order.getItems().add(item);
-
-            totalAmount =
-                    totalAmount.add(subtotal);
+            orderItems.add(
+                    orderItem
+            );
         }
 
-        order.setTotalAmount(totalAmount);
+        order.setItems(
+                orderItems
+        );
 
+        // Save order and items
         Order savedOrder =
                 orderRepository.save(order);
 
-        return convertToResponse(savedOrder);
+        return convertToResponse(
+                savedOrder
+        );
     }
+
+    // =========================================================
+    // GET ORDER BY ID
+    // =========================================================
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderById(
@@ -123,16 +141,22 @@ public class OrderService {
     ) {
 
         Order order =
-                orderRepository.findById(id)
+                orderRepository
+                        .findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Order not found with id: "
-                                                + id
+                                new OrderNotFoundException(
+                                        id
                                 )
                         );
 
-        return convertToResponse(order);
+        return convertToResponse(
+                order
+        );
     }
+
+    // =========================================================
+    // GET ORDER BY ORDER NUMBER
+    // =========================================================
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderByNumber(
@@ -141,16 +165,23 @@ public class OrderService {
 
         Order order =
                 orderRepository
-                        .findByOrderNumber(orderNumber)
+                        .findByOrderNumber(
+                                orderNumber
+                        )
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Order not found with order number: "
-                                                + orderNumber
+                                new OrderNotFoundException(
+                                        orderNumber
                                 )
                         );
 
-        return convertToResponse(order);
+        return convertToResponse(
+                order
+        );
     }
+
+    // =========================================================
+    // GET USER ORDER
+    // =========================================================
 
     @Transactional(readOnly = true)
     public OrderResponse getUserOrder(
@@ -165,24 +196,58 @@ public class OrderService {
                                 userId
                         )
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Order not found"
+                                new OrderNotFoundException(
+                                        orderNumber
                                 )
                         );
 
-        return convertToResponse(order);
+        return convertToResponse(
+                order
+        );
     }
+
+    // =========================================================
+    // CALCULATE ORDER TOTAL
+    // =========================================================
+
+    private BigDecimal calculateTotal(
+            List<OrderItemRequest> items
+    ) {
+
+        return items.stream()
+                .map(item ->
+                        item.getUnitPrice()
+                                .multiply(
+                                        BigDecimal.valueOf(
+                                                item.getQuantity()
+                                        )
+                                )
+                )
+                .reduce(
+                        BigDecimal.ZERO,
+                        BigDecimal::add
+                );
+    }
+
+    // =========================================================
+    // GENERATE ORDER NUMBER
+    // =========================================================
 
     private String generateOrderNumber() {
 
         return "ARM-"
-                + System.currentTimeMillis()
-                + "-"
                 + UUID.randomUUID()
                 .toString()
-                .substring(0, 8)
+                .substring(
+                        0,
+                        8
+                )
                 .toUpperCase();
     }
+
+    // =========================================================
+    // CONVERT ORDER → RESPONSE
+    // =========================================================
 
     private OrderResponse convertToResponse(
             Order order
@@ -203,12 +268,16 @@ public class OrderService {
                 order.getUserId()
         );
 
-        response.setTotalAmount(
-                order.getTotalAmount()
-        );
-
         response.setStatus(
                 order.getStatus()
+        );
+
+        response.setShippingAddress(
+                order.getShippingAddress()
+        );
+
+        response.setTotalAmount(
+                order.getTotalAmount()
         );
 
         response.setCreatedAt(
@@ -219,20 +288,32 @@ public class OrderService {
                 order.getUpdatedAt()
         );
 
-        List<OrderItemResponse> itemResponses =
-                order.getItems()
-                        .stream()
-                        .map(this::convertItemToResponse)
-                        .toList();
+        // Convert order items
+        if (order.getItems() != null) {
 
-        response.setItems(
-                itemResponses
-        );
+            List<OrderItemResponse>
+                    itemResponses =
+                    order.getItems()
+                            .stream()
+                            .map(
+                                    this::convertItemToResponse
+                            )
+                            .toList();
+
+            response.setItems(
+                    itemResponses
+            );
+        }
 
         return response;
     }
 
-    private OrderItemResponse convertItemToResponse(
+    // =========================================================
+    // CONVERT ORDER ITEM → RESPONSE
+    // =========================================================
+
+    private OrderItemResponse
+    convertItemToResponse(
             OrderItem item
     ) {
 
@@ -251,16 +332,12 @@ public class OrderService {
                 item.getVariantId()
         );
 
-        response.setProductName(
-                item.getProductName()
+        response.setQuantity(
+                item.getQuantity()
         );
 
         response.setUnitPrice(
                 item.getUnitPrice()
-        );
-
-        response.setQuantity(
-                item.getQuantity()
         );
 
         response.setSubtotal(
