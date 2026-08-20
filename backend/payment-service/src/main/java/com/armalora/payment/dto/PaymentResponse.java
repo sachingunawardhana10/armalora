@@ -1,5 +1,6 @@
 package com.armalora.payment.dto;
 
+import com.armalora.payment.entity.PaymentMethod;
 import com.armalora.payment.entity.PaymentStatus;
 
 import java.math.BigDecimal;
@@ -11,19 +12,19 @@ public class PaymentResponse {
 
     private String paymentReference;
 
-    private Long orderId;
+    private String orderNumber;
 
     private Long userId;
 
     private BigDecimal amount;
 
-    private String currency;
-
     private PaymentStatus status;
 
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
 
-    private String providerReference;
+    private String transactionId;
+
+    private String failureReason;
 
     private LocalDateTime createdAt;
 
@@ -41,19 +42,16 @@ public class PaymentResponse {
         return paymentReference;
     }
 
-    public void setPaymentReference(
-            String paymentReference) {
-
-        this.paymentReference =
-                paymentReference;
+    public void setPaymentReference(String paymentReference) {
+        this.paymentReference = paymentReference;
     }
 
-    public Long getOrderId() {
-        return orderId;
+    public String getOrderNumber() {
+        return orderNumber;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
     }
 
     public Long getUserId() {
@@ -72,14 +70,6 @@ public class PaymentResponse {
         this.amount = amount;
     }
 
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
     public PaymentStatus getStatus() {
         return status;
     }
@@ -88,47 +78,43 @@ public class PaymentResponse {
         this.status = status;
     }
 
-    public String getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(
-            String paymentMethod) {
-
-        this.paymentMethod =
-                paymentMethod;
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
-    public String getProviderReference() {
-        return providerReference;
+    public String getTransactionId() {
+        return transactionId;
     }
 
-    public void setProviderReference(
-            String providerReference) {
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
 
-        this.providerReference =
-                providerReference;
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public void setFailureReason(String failureReason) {
+        this.failureReason = failureReason;
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(
-            LocalDateTime createdAt) {
-
-        this.createdAt =
-                createdAt;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(
-            LocalDateTime updatedAt) {
-
-        this.updatedAt =
-                updatedAt;
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

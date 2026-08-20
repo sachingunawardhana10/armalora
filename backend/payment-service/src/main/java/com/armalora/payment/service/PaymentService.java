@@ -1,19 +1,9 @@
 package com.armalora.payment.service;
 
-import com.armalora.payment.client.OrderClient;
-import com.armalora.payment.dto.CheckoutRequest;
-import com.armalora.payment.dto.OrderResponse;
+import com.armalora.payment.dto.CreatePaymentRequest;
 import com.armalora.payment.dto.PaymentResponse;
-import com.armalora.payment.entity.OrderStatus;
 import com.armalora.payment.entity.Payment;
 import com.armalora.payment.entity.PaymentStatus;
-import com.armalora.payment.exception.DuplicatePaymentException;
-import com.armalora.payment.exception.InvalidPaymentStatusException;
-import com.armalora.payment.exception.PaymentNotFoundException;
-import com.armalora.payment.provider.PaymentProvider;
-import com.armalora.payment.provider.PaymentProviderRequest;
-import com.armalora.payment.provider.PaymentProviderResponse;
-import com.armalora.payment.provider.PaymentProviderStatus;
 import com.armalora.payment.repository.PaymentRepository;
 
 import org.springframework.stereotype.Service;
@@ -26,80 +16,30 @@ import java.util.UUID;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final OrderClient orderClient;
-    private final PaymentProvider paymentProvider;
 
     public PaymentService(
-            PaymentRepository paymentRepository,
-            OrderClient orderClient,
-            PaymentProvider paymentProvider
+            PaymentRepository paymentRepository
     ) {
-
         this.paymentRepository =
                 paymentRepository;
-
-        this.orderClient =
-                orderClient;
-
-        this.paymentProvider =
-                paymentProvider;
     }
 
-    // ============================================================
-    // CHECKOUT
-    // ============================================================
-
     @Transactional
-    public PaymentResponse checkout(
-            Long authenticatedUserId,
-            CheckoutRequest request
+    public PaymentResponse createPayment(
+            CreatePaymentRequest request
     ) {
 
-        OrderResponse order =
-                orderClient.getOrderById(
-                        request.getOrderId()
-                );
-
-        if (order == null) {
-
-            throw new RuntimeException(
-                    "Order not found: "
-                            + request.getOrderId()
-            );
-        }
-
-        // Verify ownership
-        if (!authenticatedUserId.equals(
-                order.getUserId()
-        )) {
-
-            throw new RuntimeException(
-                    "You are not allowed to pay for this order"
-            );
-        }
-
-        // Order must be pending
-        if (order.getStatus()
-                != OrderStatus.PENDING) {
-
-            throw new RuntimeException(
-                    "Only PENDING orders can be paid"
-            );
-        }
-
-        // Prevent duplicate successful payment
         if (paymentRepository
-                .existsByOrderIdAndStatus(
-                        order.getId(),
-                        PaymentStatus.SUCCESS
+                .existsByOrderNumber(
+                        request.getOrderNumber()
                 )) {
 
-            throw new DuplicatePaymentException(
-                    "Order already has a successful payment"
+            throw new IllegalStateException(
+                    "Payment already exists for order: "
+                            + request.getOrderNumber()
             );
         }
 
-        // Create payment
         Payment payment =
                 new Payment();
 
@@ -107,21 +47,16 @@ public class PaymentService {
                 generatePaymentReference()
         );
 
-        payment.setOrderId(
-                order.getId()
+        payment.setOrderNumber(
+                request.getOrderNumber()
         );
 
         payment.setUserId(
-                order.getUserId()
+                request.getUserId()
         );
 
-        // Amount comes from Order Service
         payment.setAmount(
-                order.getTotalAmount()
-        );
-
-        payment.setCurrency(
-                "LKR"
+                request.getAmount()
         );
 
         payment.setPaymentMethod(
@@ -132,65 +67,82 @@ public class PaymentService {
                 PaymentStatus.PENDING
         );
 
-        // Save
         Payment savedPayment =
-                paymentRepository.save(
-                        payment
-                );
-
-        // Provider request
-        PaymentProviderRequest
-                providerRequest =
-                new PaymentProviderRequest();
-
-        providerRequest.setPaymentReference(
-                savedPayment
-                        .getPaymentReference()
-        );
-
-        providerRequest.setAmount(
-                savedPayment.getAmount()
-        );
-
-        providerRequest.setCurrency(
-                savedPayment.getCurrency()
-        );
-
-        providerRequest.setPaymentMethod(
-                savedPayment
-                        .getPaymentMethod()
-        );
-
-        PaymentProviderResponse
-                providerResponse =
-                paymentProvider
-                        .createPayment(
-                                providerRequest
-                        );
-
-        savedPayment.setProviderReference(
-                providerResponse
-                        .getProviderReference()
-        );
-
-        if (providerResponse.getStatus()
-                == PaymentProviderStatus.PENDING) {
-
-            savedPayment.setStatus(
-                    PaymentStatus.PENDING
-            );
-        }
+                paymentRepository.save(payment);
 
         return convertToResponse(
-                paymentRepository.save(
-                        savedPayment
-                )
+                savedPayment
         );
     }
 
-    // ============================================================
-    // PROCESS PAYMENT
-    // ============================================================
+    @Transactional(readOnly = true)
+    public PaymentResponse getPaymentById(
+            Long id
+    ) {
+
+        Payment payment =
+                paymentRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "Payment not found: " + id
+                                )
+                        );
+
+        return convertToResponse(payment);
+    }
+
+    @Transactional(readOnly = true)
+    public PaymentResponse getPaymentByReference(
+            String paymentReference
+    ) {
+
+        Payment payment =
+                paymentRepository
+                        .findByPaymentReference(
+                                paymentReference
+                        )
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "Payment not found: "
+                                                + paymentReference
+                                )
+                        );
+
+        return convertToResponse(payment);
+    }
+
+    @Transactional(readOnly = true)
+    public PaymentResponse getPaymentByOrderNumber(
+            String orderNumber
+    ) {
+
+        Payment payment =
+                paymentRepository
+                        .findByOrderNumber(
+                                orderNumber
+                        )
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "Payment not found for order: "
+                                                + orderNumber
+                                )
+                        );
+
+        return convertToResponse(payment);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getPaymentsByUserId(
+            Long userId
+    ) {
+
+        return paymentRepository
+                .findByUserId(userId)
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
 
     @Transactional
     public PaymentResponse processPayment(
@@ -203,191 +155,139 @@ public class PaymentService {
                                 paymentReference
                         )
                         .orElseThrow(() ->
-                                new PaymentNotFoundException(
-                                        paymentReference
+                                new IllegalArgumentException(
+                                        "Payment not found: "
+                                                + paymentReference
                                 )
                         );
 
         if (payment.getStatus()
                 != PaymentStatus.PENDING) {
 
-            throw new InvalidPaymentStatusException(
-                    "Only PENDING payments can be processed"
+            throw new IllegalStateException(
+                    "Payment is not in PENDING status"
             );
         }
+
+        /*
+         * Payment gateway simulation.
+         *
+         * Later this section will be replaced
+         * with PayHere/Stripe/etc.
+         */
 
         payment.setStatus(
-                PaymentStatus.PROCESSING
+                PaymentStatus.SUCCESS
         );
 
-        paymentRepository.save(
-                payment
+        payment.setTransactionId(
+                generateTransactionId()
         );
 
-        PaymentProviderRequest
-                providerRequest =
-                new PaymentProviderRequest();
-
-        providerRequest.setPaymentReference(
-                payment.getPaymentReference()
-        );
-
-        providerRequest.setAmount(
-                payment.getAmount()
-        );
-
-        providerRequest.setCurrency(
-                payment.getCurrency()
-        );
-
-        providerRequest.setPaymentMethod(
-                payment.getPaymentMethod()
-        );
-
-        PaymentProviderResponse
-                providerResponse =
-                paymentProvider.processPayment(
-                        providerRequest
-                );
-
-        payment.setProviderReference(
-                providerResponse
-                        .getProviderReference()
-        );
-
-        if (providerResponse.getStatus()
-                == PaymentProviderStatus.SUCCESS) {
-
-            payment.setStatus(
-                    PaymentStatus.SUCCESS
-            );
-
-        } else if (
-                providerResponse.getStatus()
-                        == PaymentProviderStatus.FAILED
-        ) {
-
-            payment.setStatus(
-                    PaymentStatus.FAILED
-            );
-
-        } else if (
-                providerResponse.getStatus()
-                        == PaymentProviderStatus.CANCELLED
-        ) {
-
-            payment.setStatus(
-                    PaymentStatus.CANCELLED
-            );
-        }
-
-        Payment savedPayment =
-                paymentRepository.save(
-                        payment
-                );
+        Payment updatedPayment =
+                paymentRepository.save(payment);
 
         return convertToResponse(
-                savedPayment
+                updatedPayment
         );
     }
 
-    // ============================================================
-    // GET PAYMENT
-    // ============================================================
-
-    @Transactional(readOnly = true)
-    public PaymentResponse getPaymentById(
-            Long id
-    ) {
-
-        Payment payment =
-                paymentRepository
-                        .findById(id)
-                        .orElseThrow(() ->
-                                new PaymentNotFoundException(
-                                        id
-                                )
-                        );
-
-        return convertToResponse(
-                payment
-        );
-    }
-
-    @Transactional(readOnly = true)
-    public PaymentResponse getPaymentByReference(
-            String reference
+    @Transactional
+    public PaymentResponse failPayment(
+            String paymentReference,
+            String reason
     ) {
 
         Payment payment =
                 paymentRepository
                         .findByPaymentReference(
-                                reference
+                                paymentReference
                         )
                         .orElseThrow(() ->
-                                new PaymentNotFoundException(
-                                        reference
+                                new IllegalArgumentException(
+                                        "Payment not found: "
+                                                + paymentReference
                                 )
                         );
 
+        if (payment.getStatus()
+                != PaymentStatus.PENDING) {
+
+            throw new IllegalStateException(
+                    "Payment is not in PENDING status"
+            );
+        }
+
+        payment.setStatus(
+                PaymentStatus.FAILED
+        );
+
+        payment.setFailureReason(
+                reason
+        );
+
+        Payment updatedPayment =
+                paymentRepository.save(payment);
+
         return convertToResponse(
-                payment
+                updatedPayment
         );
     }
 
-    @Transactional(readOnly = true)
-    public PaymentResponse getPaymentByOrderId(
-            Long orderId
+    @Transactional
+    public PaymentResponse refundPayment(
+            String paymentReference
     ) {
 
         Payment payment =
                 paymentRepository
-                        .findByOrderId(
-                                orderId
+                        .findByPaymentReference(
+                                paymentReference
                         )
                         .orElseThrow(() ->
-                                new PaymentNotFoundException(
-                                        "Payment not found for order "
-                                                + orderId
+                                new IllegalArgumentException(
+                                        "Payment not found: "
+                                                + paymentReference
                                 )
                         );
 
+        if (payment.getStatus()
+                != PaymentStatus.SUCCESS) {
+
+            throw new IllegalStateException(
+                    "Only successful payments can be refunded"
+            );
+        }
+
+        payment.setStatus(
+                PaymentStatus.REFUNDED
+        );
+
+        Payment updatedPayment =
+                paymentRepository.save(payment);
+
         return convertToResponse(
-                payment
+                updatedPayment
         );
     }
-
-    @Transactional(readOnly = true)
-    public List<PaymentResponse> getPaymentsByUserId(
-            Long userId
-    ) {
-
-        return paymentRepository
-                .findAllByUserId(userId)
-                .stream()
-                .map(this::convertToResponse)
-                .toList();
-    }
-
-    // ============================================================
-    // GENERATE REFERENCE
-    // ============================================================
 
     private String generatePaymentReference() {
 
         return "PAY-"
                 + UUID.randomUUID()
                 .toString()
-                .substring(
-                        0,
-                        8
-                )
+                .substring(0, 8)
                 .toUpperCase();
     }
 
-    // ============================================================
-    // RESPONSE
-    // ============================================================
+    private String generateTransactionId() {
+
+        return "TXN-"
+                + UUID.randomUUID()
+                .toString()
+                .substring(0, 12)
+                .toUpperCase();
+    }
 
     private PaymentResponse convertToResponse(
             Payment payment
@@ -404,8 +304,8 @@ public class PaymentService {
                 payment.getPaymentReference()
         );
 
-        response.setOrderId(
-                payment.getOrderId()
+        response.setOrderNumber(
+                payment.getOrderNumber()
         );
 
         response.setUserId(
@@ -416,10 +316,6 @@ public class PaymentService {
                 payment.getAmount()
         );
 
-        response.setCurrency(
-                payment.getCurrency()
-        );
-
         response.setStatus(
                 payment.getStatus()
         );
@@ -428,8 +324,12 @@ public class PaymentService {
                 payment.getPaymentMethod()
         );
 
-        response.setProviderReference(
-                payment.getProviderReference()
+        response.setTransactionId(
+                payment.getTransactionId()
+        );
+
+        response.setFailureReason(
+                payment.getFailureReason()
         );
 
         response.setCreatedAt(

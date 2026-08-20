@@ -1,8 +1,6 @@
 package com.armalora.payment.repository;
 
 import com.armalora.payment.entity.Payment;
-import com.armalora.payment.entity.PaymentStatus;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -15,21 +13,15 @@ public interface PaymentRepository
             String paymentReference
     );
 
-    Optional<Payment> findByOrderId(
-            Long orderId
+    Optional<Payment> findByOrderNumber(
+            String orderNumber
     );
 
-    Optional<Payment> findByOrderIdAndUserId(
-            Long orderId,
+    List<Payment> findByUserId(
             Long userId
     );
 
-    boolean existsByOrderIdAndStatus(
-            Long orderId,
-            PaymentStatus status
-    );
-
-    List<Payment> findAllByUserId(
-            Long userId
+    boolean existsByOrderNumber(
+            String orderNumber
     );
 }

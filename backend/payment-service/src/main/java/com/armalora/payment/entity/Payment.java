@@ -6,106 +6,52 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(
-        name = "payments",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        columnNames = "payment_reference"
-                )
-        }
-)
+@Table(name = "payments")
 public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(
-            name = "payment_reference",
-            nullable = false,
-            unique = true,
-            length = 50
-    )
+    @Column(nullable = false, unique = true)
     private String paymentReference;
 
-    @Column(
-            nullable = false
-    )
-    private Long orderId;
+    @Column(nullable = false)
+    private String orderNumber;
 
-    @Column(
-            nullable = false
-    )
+    @Column(nullable = false)
     private Long userId;
 
-    @Column(
-            nullable = false,
-            precision = 12,
-            scale = 2
-    )
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
-    @Column(
-            nullable = false,
-            length = 10
-    )
-    private String currency = "LKR";
-
     @Enumerated(EnumType.STRING)
-    @Column(
-            nullable = false,
-            length = 20
-    )
+    @Column(nullable = false)
     private PaymentStatus status;
 
-    @Column(
-            nullable = false,
-            length = 50
-    )
-    private String paymentMethod;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentMethod paymentMethod;
 
-    @Column(
-            length = 100
-    )
-    private String providerReference;
+    private String transactionId;
 
-    @Column(
-            nullable = false,
-            updatable = false
-    )
+    private String failureReason;
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(
-            nullable = false
-    )
     private LocalDateTime updatedAt;
-
-    public Payment() {
-    }
 
     @PrePersist
     protected void onCreate() {
-
-        LocalDateTime now =
-                LocalDateTime.now();
-
+        LocalDateTime now = LocalDateTime.now();
         createdAt = now;
         updatedAt = now;
-
-        if (currency == null) {
-            currency = "LKR";
-        }
-
-        if (status == null) {
-            status = PaymentStatus.PENDING;
-        }
     }
 
     @PreUpdate
     protected void onUpdate() {
-
-        updatedAt =
-                LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -116,19 +62,16 @@ public class Payment {
         return paymentReference;
     }
 
-    public void setPaymentReference(
-            String paymentReference) {
-
-        this.paymentReference =
-                paymentReference;
+    public void setPaymentReference(String paymentReference) {
+        this.paymentReference = paymentReference;
     }
 
-    public Long getOrderId() {
-        return orderId;
+    public String getOrderNumber() {
+        return orderNumber;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
     }
 
     public Long getUserId() {
@@ -147,14 +90,6 @@ public class Payment {
         this.amount = amount;
     }
 
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
     public PaymentStatus getStatus() {
         return status;
     }
@@ -163,26 +98,28 @@ public class Payment {
         this.status = status;
     }
 
-    public String getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(
-            String paymentMethod) {
-
-        this.paymentMethod =
-                paymentMethod;
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
-    public String getProviderReference() {
-        return providerReference;
+    public String getTransactionId() {
+        return transactionId;
     }
 
-    public void setProviderReference(
-            String providerReference) {
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
 
-        this.providerReference =
-                providerReference;
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public void setFailureReason(String failureReason) {
+        this.failureReason = failureReason;
     }
 
     public LocalDateTime getCreatedAt() {
