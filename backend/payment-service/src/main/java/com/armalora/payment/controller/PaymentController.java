@@ -1,8 +1,7 @@
 package com.armalora.payment.controller;
 
-import com.armalora.payment.dto.PaymentRequest;
+import com.armalora.payment.dto.CheckoutRequest;
 import com.armalora.payment.dto.PaymentResponse;
-import com.armalora.payment.entity.PaymentStatus;
 import com.armalora.payment.service.PaymentService;
 
 import jakarta.validation.Valid;
@@ -27,62 +26,122 @@ public class PaymentController {
                 paymentService;
     }
 
-    @PostMapping
-    public ResponseEntity<PaymentResponse>
-    createPayment(
-            @Valid @RequestBody PaymentRequest request) {
+    // ============================================================
+    // CHECKOUT
+    // ============================================================
 
-        return new ResponseEntity<>(
-                paymentService.createPayment(request),
-                HttpStatus.CREATED
+    @PostMapping("/checkout")
+    public ResponseEntity<PaymentResponse>
+    checkout(
+            @RequestHeader("X-User-Id")
+            Long userId,
+
+            @Valid
+            @RequestBody
+            CheckoutRequest request
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        paymentService.checkout(
+                                userId,
+                                request
+                        )
+                );
+    }
+
+    // ============================================================
+    // PROCESS
+    // ============================================================
+
+    @PostMapping(
+            "/{paymentReference}/process"
+    )
+    public ResponseEntity<PaymentResponse>
+    processPayment(
+            @PathVariable
+            String paymentReference
+    ) {
+
+        return ResponseEntity.ok(
+                paymentService.processPayment(
+                        paymentReference
+                )
         );
     }
+
+    // ============================================================
+    // GET BY ID
+    // ============================================================
 
     @GetMapping("/{id}")
     public ResponseEntity<PaymentResponse>
     getPaymentById(
-            @PathVariable Long id) {
+            @PathVariable Long id
+    ) {
 
         return ResponseEntity.ok(
                 paymentService.getPaymentById(id)
         );
     }
 
-    @GetMapping("/order/{orderId}")
+    // ============================================================
+    // GET BY REFERENCE
+    // ============================================================
+
+    @GetMapping(
+            "/reference/{reference}"
+    )
+    public ResponseEntity<PaymentResponse>
+    getPaymentByReference(
+            @PathVariable String reference
+    ) {
+
+        return ResponseEntity.ok(
+                paymentService
+                        .getPaymentByReference(
+                                reference
+                        )
+        );
+    }
+
+    // ============================================================
+    // GET BY ORDER
+    // ============================================================
+
+    @GetMapping(
+            "/order/{orderId}"
+    )
     public ResponseEntity<PaymentResponse>
     getPaymentByOrderId(
-            @PathVariable Long orderId) {
+            @PathVariable Long orderId
+    ) {
 
         return ResponseEntity.ok(
-                paymentService.getPaymentByOrderId(
-                        orderId
-                )
+                paymentService
+                        .getPaymentByOrderId(
+                                orderId
+                        )
         );
     }
 
-    @GetMapping("/user/{userId}")
+    // ============================================================
+    // GET USER PAYMENTS
+    // ============================================================
+
+    @GetMapping("/user")
     public ResponseEntity<List<PaymentResponse>>
-    getPaymentsByUserId(
-            @PathVariable Long userId) {
+    getUserPayments(
+            @RequestHeader("X-User-Id")
+            Long userId
+    ) {
 
         return ResponseEntity.ok(
-                paymentService.getPaymentsByUserId(
-                        userId
-                )
-        );
-    }
-
-    @PutMapping("/{id}/status")
-    public ResponseEntity<PaymentResponse>
-    updatePaymentStatus(
-            @PathVariable Long id,
-            @RequestParam PaymentStatus status) {
-
-        return ResponseEntity.ok(
-                paymentService.updatePaymentStatus(
-                        id,
-                        status
-                )
+                paymentService
+                        .getPaymentsByUserId(
+                                userId
+                        )
         );
     }
 }

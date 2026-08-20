@@ -20,27 +20,36 @@ public class GlobalExceptionHandler {
     handlePaymentNotFound(
             PaymentNotFoundException exception) {
 
-        Map<String, Object> response =
-                new HashMap<>();
-
-        response.put(
-                "timestamp",
-                LocalDateTime.now()
-        );
-
-        response.put(
-                "status",
-                HttpStatus.NOT_FOUND.value()
-        );
-
-        response.put(
-                "message",
+        return buildResponse(
+                HttpStatus.NOT_FOUND,
                 exception.getMessage()
         );
+    }
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(response);
+    @ExceptionHandler(
+            DuplicatePaymentException.class
+    )
+    public ResponseEntity<Map<String, Object>>
+    handleDuplicatePayment(
+            DuplicatePaymentException exception) {
+
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+    }
+
+    @ExceptionHandler(
+            InvalidPaymentStatusException.class
+    )
+    public ResponseEntity<Map<String, Object>>
+    handleInvalidStatus(
+            InvalidPaymentStatusException exception) {
+
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
     }
 
     @ExceptionHandler(
@@ -49,9 +58,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>>
     handleValidation(
             MethodArgumentNotValidException exception) {
-
-        Map<String, Object> response =
-                new HashMap<>();
 
         Map<String, String> errors =
                 new HashMap<>();
@@ -64,6 +70,9 @@ public class GlobalExceptionHandler {
                                 error.getDefaultMessage()
                         )
                 );
+
+        Map<String, Object> response =
+                new HashMap<>();
 
         response.put(
                 "timestamp",
@@ -81,7 +90,36 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .badRequest()
+                .body(response);
+    }
+
+    private ResponseEntity<Map<String, Object>>
+    buildResponse(
+            HttpStatus status,
+            String message
+    ) {
+
+        Map<String, Object> response =
+                new HashMap<>();
+
+        response.put(
+                "timestamp",
+                LocalDateTime.now()
+        );
+
+        response.put(
+                "status",
+                status.value()
+        );
+
+        response.put(
+                "message",
+                message
+        );
+
+        return ResponseEntity
+                .status(status)
                 .body(response);
     }
 }

@@ -17,16 +17,17 @@ public class PaymentResponse {
 
     private BigDecimal amount;
 
+    private String currency;
+
     private PaymentStatus status;
 
     private String paymentMethod;
 
+    private String providerReference;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
-
-    public PaymentResponse() {
-    }
 
     public Long getId() {
         return id;
@@ -71,6 +72,14 @@ public class PaymentResponse {
         this.amount = amount;
     }
 
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
     public PaymentStatus getStatus() {
         return status;
     }
@@ -90,6 +99,17 @@ public class PaymentResponse {
                 paymentMethod;
     }
 
+    public String getProviderReference() {
+        return providerReference;
+    }
+
+    public void setProviderReference(
+            String providerReference) {
+
+        this.providerReference =
+                providerReference;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -97,7 +117,8 @@ public class PaymentResponse {
     public void setCreatedAt(
             LocalDateTime createdAt) {
 
-        this.createdAt = createdAt;
+        this.createdAt =
+                createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {
@@ -107,6 +128,7 @@ public class PaymentResponse {
     public void setUpdatedAt(
             LocalDateTime updatedAt) {
 
-        this.updatedAt = updatedAt;
+        this.updatedAt =
+                updatedAt;
     }
 }

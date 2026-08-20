@@ -19,11 +19,17 @@ public interface PaymentRepository
             Long orderId
     );
 
-    List<Payment> findByUserId(
+    Optional<Payment> findByOrderIdAndUserId(
+            Long orderId,
             Long userId
     );
 
-    List<Payment> findByStatus(
+    boolean existsByOrderIdAndStatus(
+            Long orderId,
             PaymentStatus status
+    );
+
+    List<Payment> findAllByUserId(
+            Long userId
     );
 }

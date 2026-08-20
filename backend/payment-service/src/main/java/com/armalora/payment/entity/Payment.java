@@ -6,7 +6,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payments")
+@Table(
+        name = "payments",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = "payment_reference"
+                )
+        }
+)
 public class Payment {
 
     @Id
@@ -14,16 +21,21 @@ public class Payment {
     private Long id;
 
     @Column(
+            name = "payment_reference",
             nullable = false,
             unique = true,
             length = 50
     )
     private String paymentReference;
 
-    @Column(nullable = false)
+    @Column(
+            nullable = false
+    )
     private Long orderId;
 
-    @Column(nullable = false)
+    @Column(
+            nullable = false
+    )
     private Long userId;
 
     @Column(
@@ -33,17 +45,39 @@ public class Payment {
     )
     private BigDecimal amount;
 
+    @Column(
+            nullable = false,
+            length = 10
+    )
+    private String currency = "LKR";
+
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(
+            nullable = false,
+            length = 20
+    )
     private PaymentStatus status;
 
-    @Column(length = 50)
+    @Column(
+            nullable = false,
+            length = 50
+    )
     private String paymentMethod;
 
-    @Column(nullable = false)
+    @Column(
+            length = 100
+    )
+    private String providerReference;
+
+    @Column(
+            nullable = false,
+            updatable = false
+    )
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(
+            nullable = false
+    )
     private LocalDateTime updatedAt;
 
     public Payment() {
@@ -57,6 +91,10 @@ public class Payment {
 
         createdAt = now;
         updatedAt = now;
+
+        if (currency == null) {
+            currency = "LKR";
+        }
 
         if (status == null) {
             status = PaymentStatus.PENDING;
@@ -105,19 +143,23 @@ public class Payment {
         return amount;
     }
 
-    public void setAmount(
-            BigDecimal amount) {
-
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public PaymentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(
-            PaymentStatus status) {
-
+    public void setStatus(PaymentStatus status) {
         this.status = status;
     }
 
@@ -130,6 +172,17 @@ public class Payment {
 
         this.paymentMethod =
                 paymentMethod;
+    }
+
+    public String getProviderReference() {
+        return providerReference;
+    }
+
+    public void setProviderReference(
+            String providerReference) {
+
+        this.providerReference =
+                providerReference;
     }
 
     public LocalDateTime getCreatedAt() {
