@@ -6,72 +6,99 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payments")
+@Table(
+        name = "payments",
+        indexes = {
+                @Index(
+                        name = "idx_payment_order_id",
+                        columnList = "order_id"
+                )
+        }
+)
 public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String paymentReference;
+    @Column(
+            name = "order_id",
+            nullable = false,
+            unique = true
+    )
+    private Long orderId;
 
-    @Column(nullable = false)
-    private String orderNumber;
-
-    @Column(nullable = false)
+    @Column(
+            name = "user_id",
+            nullable = false
+    )
     private Long userId;
 
-    @Column(nullable = false, precision = 19, scale = 2)
+    @Column(
+            nullable = false,
+            precision = 12,
+            scale = 2
+    )
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(
+            nullable = false,
+            length = 30
+    )
     private PaymentStatus status;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PaymentMethod paymentMethod;
+    @Column(
+            name = "transaction_reference",
+            unique = true
+    )
+    private String transactionReference;
 
-    private String transactionId;
+    @Column(
+            name = "payment_method"
+    )
+    private String paymentMethod;
 
-    private String failureReason;
-
-    @Column(nullable = false)
+    @Column(
+            name = "created_at",
+            nullable = false
+    )
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime now =
+                LocalDateTime.now();
+
         createdAt = now;
         updatedAt = now;
+
+        if (status == null) {
+            status = PaymentStatus.PENDING;
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+
+        updatedAt =
+                LocalDateTime.now();
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getPaymentReference() {
-        return paymentReference;
+    public Long getOrderId() {
+        return orderId;
     }
 
-    public void setPaymentReference(String paymentReference) {
-        this.paymentReference = paymentReference;
-    }
-
-    public String getOrderNumber() {
-        return orderNumber;
-    }
-
-    public void setOrderNumber(String orderNumber) {
-        this.orderNumber = orderNumber;
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 
     public Long getUserId() {
@@ -98,28 +125,22 @@ public class Payment {
         this.status = status;
     }
 
-    public PaymentMethod getPaymentMethod() {
+    public String getTransactionReference() {
+        return transactionReference;
+    }
+
+    public void setTransactionReference(String transactionReference) {
+        this.transactionReference =
+                transactionReference;
+    }
+
+    public String getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
-    }
-
-    public String getFailureReason() {
-        return failureReason;
-    }
-
-    public void setFailureReason(String failureReason) {
-        this.failureReason = failureReason;
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod =
+                paymentMethod;
     }
 
     public LocalDateTime getCreatedAt() {

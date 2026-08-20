@@ -1,6 +1,5 @@
 package com.armalora.payment.dto;
 
-import com.armalora.payment.entity.PaymentMethod;
 import com.armalora.payment.entity.PaymentStatus;
 
 import java.math.BigDecimal;
@@ -10,25 +9,24 @@ public class PaymentResponse {
 
     private Long id;
 
-    private String paymentReference;
-
-    private String orderNumber;
+    private Long orderId;
 
     private Long userId;
 
     private BigDecimal amount;
 
+    private String paymentMethod;
+
     private PaymentStatus status;
 
-    private PaymentMethod paymentMethod;
-
     private String transactionId;
-
-    private String failureReason;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    public PaymentResponse() {
+    }
 
     public Long getId() {
         return id;
@@ -38,20 +36,12 @@ public class PaymentResponse {
         this.id = id;
     }
 
-    public String getPaymentReference() {
-        return paymentReference;
+    public Long getOrderId() {
+        return orderId;
     }
 
-    public void setPaymentReference(String paymentReference) {
-        this.paymentReference = paymentReference;
-    }
-
-    public String getOrderNumber() {
-        return orderNumber;
-    }
-
-    public void setOrderNumber(String orderNumber) {
-        this.orderNumber = orderNumber;
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 
     public Long getUserId() {
@@ -70,6 +60,14 @@ public class PaymentResponse {
         this.amount = amount;
     }
 
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
     public PaymentStatus getStatus() {
         return status;
     }
@@ -78,28 +76,12 @@ public class PaymentResponse {
         this.status = status;
     }
 
-    public PaymentMethod getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
     public String getTransactionId() {
         return transactionId;
     }
 
     public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
-    }
-
-    public String getFailureReason() {
-        return failureReason;
-    }
-
-    public void setFailureReason(String failureReason) {
-        this.failureReason = failureReason;
     }
 
     public LocalDateTime getCreatedAt() {

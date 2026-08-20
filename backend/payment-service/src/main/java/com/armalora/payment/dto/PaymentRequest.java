@@ -1,29 +1,16 @@
-package com.armalora.payment.dto;
-
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
+package com.armalora.order.dto;
 
 import java.math.BigDecimal;
 
 public class PaymentRequest {
 
-    @NotNull(message = "Order ID is required")
     private Long orderId;
 
-    @NotNull(message = "User ID is required")
     private Long userId;
 
-    @NotNull(message = "Amount is required")
-    @DecimalMin(
-            value = "0.01",
-            message = "Amount must be greater than zero"
-    )
     private BigDecimal amount;
 
     private String paymentMethod;
-
-    public PaymentRequest() {
-    }
 
     public Long getOrderId() {
         return orderId;
@@ -54,8 +41,8 @@ public class PaymentRequest {
     }
 
     public void setPaymentMethod(
-            String paymentMethod) {
-
+            String paymentMethod
+    ) {
         this.paymentMethod =
                 paymentMethod;
     }

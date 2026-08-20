@@ -1,18 +1,15 @@
 package com.armalora.order.service;
 
 import com.armalora.order.client.InventoryClient;
+import com.armalora.order.client.PaymentClient;
 import com.armalora.order.client.ProductClient;
 import com.armalora.order.dto.CreateOrderRequest;
-import com.armalora.order.dto.InventoryResponse;
 import com.armalora.order.dto.OrderItemRequest;
 import com.armalora.order.dto.OrderItemResponse;
 import com.armalora.order.dto.OrderResponse;
-import com.armalora.order.dto.ProductResponse;
 import com.armalora.order.entity.Order;
 import com.armalora.order.entity.OrderItem;
 import com.armalora.order.entity.OrderStatus;
-import com.armalora.order.exception.InsufficientInventoryException;
-import com.armalora.order.exception.InvalidOrderStatusException;
 import com.armalora.order.exception.OrderNotFoundException;
 import com.armalora.order.repository.OrderRepository;
 
@@ -30,21 +27,18 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
     private final InventoryClient inventoryClient;
+    private final PaymentClient paymentClient;
 
     public OrderService(
             OrderRepository orderRepository,
             ProductClient productClient,
-            InventoryClient inventoryClient
+            InventoryClient inventoryClient,
+            PaymentClient paymentClient
     ) {
-
-        this.orderRepository =
-                orderRepository;
-
-        this.productClient =
-                productClient;
-
-        this.inventoryClient =
-                inventoryClient;
+        this.orderRepository = orderRepository;
+        this.productClient = productClient;
+        this.inventoryClient = inventoryClient;
+        this.paymentClient = paymentClient;
     }
 
     @Transactional
@@ -55,130 +49,36 @@ public class OrderService {
 
         Order order = new Order();
 
-        // Generate unique order number
         order.setOrderNumber(
                 generateOrderNumber()
         );
 
-        // Authenticated user
-        order.setUserId(userId);
+        order.setUserId(
+                userId
+        );
 
-        // New orders start as PENDING
         order.setStatus(
                 OrderStatus.PENDING
         );
 
-        // Shipping address
         order.setShippingAddress(
                 request.getShippingAddress()
         );
 
         BigDecimal totalAmount =
-                BigDecimal.ZERO;
+                calculateTotal(
+                        request.getItems()
+                );
+
+        order.setTotalAmount(
+                totalAmount
+        );
 
         List<OrderItem> orderItems =
                 new ArrayList<>();
 
         for (OrderItemRequest itemRequest :
                 request.getItems()) {
-
-            ProductResponse product =
-                    productClient.getProductById(
-                            itemRequest.getProductId()
-                    );
-
-
-            if (product == null) {
-
-                throw new RuntimeException(
-                        "Product not found: "
-                                + itemRequest.getProductId()
-                );
-            }
-
-            if (Boolean.FALSE.equals(
-                    product.getActive()
-            )) {
-
-                throw new RuntimeException(
-                        "Product is not active: "
-                                + itemRequest.getProductId()
-                );
-            }
-
-
-            InventoryResponse inventory;
-
-            if (itemRequest.getVariantId() != null) {
-
-                inventory =
-                        inventoryClient
-                                .getInventoryByProductAndVariant(
-                                        itemRequest.getProductId(),
-                                        itemRequest.getVariantId()
-                                );
-
-            } else {
-
-                List<InventoryResponse>
-                        inventories =
-                        inventoryClient
-                                .getInventoryByProductId(
-                                        itemRequest.getProductId()
-                                );
-
-                if (inventories.isEmpty()) {
-
-                    throw new RuntimeException(
-                            "Inventory not found for product: "
-                                    + itemRequest.getProductId()
-                    );
-                }
-
-                inventory =
-                        inventories.get(0);
-            }
-
-            if (inventory == null) {
-
-                throw new RuntimeException(
-                        "Inventory not found for product: "
-                                + itemRequest.getProductId()
-                );
-            }
-
-            Integer availableQuantity =
-                    inventory.getAvailableQuantity();
-
-            if (availableQuantity == null) {
-
-                availableQuantity =
-                        inventory.getQuantity()
-                                - inventory
-                                .getReservedQuantity();
-            }
-
-            if (availableQuantity
-                    < itemRequest.getQuantity()) {
-
-                throw new InsufficientInventoryException(
-                        itemRequest.getProductId(),
-                        itemRequest.getVariantId(),
-                        itemRequest.getQuantity(),
-                        availableQuantity
-                );
-            }
-
-
-            BigDecimal unitPrice =
-                    product.getPrice();
-
-            BigDecimal subtotal =
-                    unitPrice.multiply(
-                            BigDecimal.valueOf(
-                                    itemRequest.getQuantity()
-                            )
-                    );
 
             OrderItem orderItem =
                     new OrderItem();
@@ -196,8 +96,17 @@ public class OrderService {
             );
 
             orderItem.setUnitPrice(
-                    unitPrice
+                    itemRequest.getUnitPrice()
             );
+
+            BigDecimal subtotal =
+                    itemRequest
+                            .getUnitPrice()
+                            .multiply(
+                                    BigDecimal.valueOf(
+                                            itemRequest.getQuantity()
+                                    )
+                            );
 
             orderItem.setSubtotal(
                     subtotal
@@ -210,21 +119,10 @@ public class OrderService {
             orderItems.add(
                     orderItem
             );
-
-            // Add subtotal to total
-            totalAmount =
-                    totalAmount.add(
-                            subtotal
-                    );
         }
-
 
         order.setItems(
                 orderItems
-        );
-
-        order.setTotalAmount(
-                totalAmount
         );
 
         Order savedOrder =
@@ -310,47 +208,35 @@ public class OrderService {
                 .toList();
     }
 
-    @Transactional
-    public OrderResponse updateOrderStatus(
-            Long id,
-            OrderStatus newStatus
+    private BigDecimal calculateTotal(
+            List<OrderItemRequest> items
     ) {
 
-        Order order =
-                orderRepository
-                        .findById(id)
-                        .orElseThrow(() ->
-                                new OrderNotFoundException(
-                                        id
+        return items.stream()
+                .map(item ->
+                        item.getUnitPrice()
+                                .multiply(
+                                        BigDecimal.valueOf(
+                                                item.getQuantity()
+                                        )
                                 )
-                        );
+                )
+                .reduce(
+                        BigDecimal.ZERO,
+                        BigDecimal::add
+                );
+    }
 
-        OrderStatus currentStatus =
-                order.getStatus();
+    private String generateOrderNumber() {
 
-        if (!isValidStatusTransition(
-                currentStatus,
-                newStatus
-        )) {
-
-            throw new InvalidOrderStatusException(
-                    "Cannot change order status from "
-                            + currentStatus
-                            + " to "
-                            + newStatus
-            );
-        }
-
-        order.setStatus(
-                newStatus
-        );
-
-        Order updatedOrder =
-                orderRepository.save(order);
-
-        return convertToResponse(
-                updatedOrder
-        );
+        return "ARM-"
+                + UUID.randomUUID()
+                .toString()
+                .substring(
+                        0,
+                        8
+                )
+                .toUpperCase();
     }
 
     private boolean isValidStatusTransition(
@@ -381,18 +267,6 @@ public class OrderService {
         }
 
         return false;
-    }
-
-    private String generateOrderNumber() {
-
-        return "ARM-"
-                + UUID.randomUUID()
-                .toString()
-                .substring(
-                        0,
-                        8
-                )
-                .toUpperCase();
     }
 
     private OrderResponse convertToResponse(

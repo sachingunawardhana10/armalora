@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {
@@ -27,7 +25,8 @@ public class PaymentController {
 
     @PostMapping
     public ResponseEntity<PaymentResponse> createPayment(
-            @Valid @RequestBody
+            @Valid
+            @RequestBody
             CreatePaymentRequest request
     ) {
 
@@ -40,86 +39,15 @@ public class PaymentController {
                 );
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PaymentResponse> getPayment(
-            @PathVariable Long id
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<PaymentResponse>
+    getPaymentByOrderId(
+            @PathVariable Long orderId
     ) {
 
         return ResponseEntity.ok(
-                paymentService.getPaymentById(id)
-        );
-    }
-
-    @GetMapping("/reference/{paymentReference}")
-    public ResponseEntity<PaymentResponse> getPaymentByReference(
-            @PathVariable String paymentReference
-    ) {
-
-        return ResponseEntity.ok(
-                paymentService.getPaymentByReference(
-                        paymentReference
-                )
-        );
-    }
-
-    @GetMapping("/order/{orderNumber}")
-    public ResponseEntity<PaymentResponse> getPaymentByOrder(
-            @PathVariable String orderNumber
-    ) {
-
-        return ResponseEntity.ok(
-                paymentService.getPaymentByOrderNumber(
-                        orderNumber
-                )
-        );
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PaymentResponse>> getUserPayments(
-            @PathVariable Long userId
-    ) {
-
-        return ResponseEntity.ok(
-                paymentService.getPaymentsByUserId(
-                        userId
-                )
-        );
-    }
-
-    @PostMapping("/{paymentReference}/process")
-    public ResponseEntity<PaymentResponse> processPayment(
-            @PathVariable String paymentReference
-    ) {
-
-        return ResponseEntity.ok(
-                paymentService.processPayment(
-                        paymentReference
-                )
-        );
-    }
-
-    @PostMapping("/{paymentReference}/fail")
-    public ResponseEntity<PaymentResponse> failPayment(
-            @PathVariable String paymentReference,
-            @RequestParam String reason
-    ) {
-
-        return ResponseEntity.ok(
-                paymentService.failPayment(
-                        paymentReference,
-                        reason
-                )
-        );
-    }
-
-    @PostMapping("/{paymentReference}/refund")
-    public ResponseEntity<PaymentResponse> refundPayment(
-            @PathVariable String paymentReference
-    ) {
-
-        return ResponseEntity.ok(
-                paymentService.refundPayment(
-                        paymentReference
+                paymentService.getPaymentByOrderId(
+                        orderId
                 )
         );
     }
