@@ -53,17 +53,33 @@ public class Inventory {
     )
     private LocalDateTime updatedAt;
 
+    public Inventory() {
+    }
+
     @PrePersist
     protected void onCreate() {
-        updatedAt = LocalDateTime.now();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        updatedAt = now;
+
+        if (quantity == null) {
+            quantity = 0;
+        }
+
+        if (reservedQuantity == null) {
+            reservedQuantity = 0;
+        }
+
+        if (reorderLevel == null) {
+            reorderLevel = 5;
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 
-    public Inventory() {
+        updatedAt = LocalDateTime.now();
     }
 
     public Long getId() {

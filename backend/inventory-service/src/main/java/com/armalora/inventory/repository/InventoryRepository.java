@@ -17,4 +17,13 @@ public interface InventoryRepository
     List<Inventory> findByProductId(
             Long productId
     );
+
+    boolean existsByProductIdAndVariantId(
+            Long productId,
+            Long variantId
+    );
+
+    boolean existsByProductIdAndVariantIdIsNull(
+            Long productId
+    );
 }

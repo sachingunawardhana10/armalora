@@ -2,6 +2,7 @@ package com.armalora.inventory.controller;
 
 import com.armalora.inventory.dto.InventoryRequest;
 import com.armalora.inventory.dto.InventoryResponse;
+import com.armalora.inventory.dto.StockOperationRequest;
 import com.armalora.inventory.service.InventoryService;
 
 import jakarta.validation.Valid;
@@ -104,6 +105,57 @@ public class InventoryController {
         return ResponseEntity.ok(
                 inventoryService.getInventoryByProductId(
                         productId
+                )
+        );
+    }
+
+    @PostMapping("/{id}/increase")
+    public ResponseEntity<InventoryResponse> increaseStock(
+            @PathVariable Long id,
+            @Valid @RequestBody StockOperationRequest request) {
+
+        return ResponseEntity.ok(
+                inventoryService.increaseStock(
+                        id,
+                        request.getAmount()
+                )
+        );
+    }
+    @PostMapping("/{id}/decrease")
+    public ResponseEntity<InventoryResponse> decreaseStock(
+            @PathVariable Long id,
+            @Valid @RequestBody StockOperationRequest request) {
+
+        return ResponseEntity.ok(
+                inventoryService.decreaseStock(
+                        id,
+                        request.getAmount()
+                )
+        );
+    }
+
+    @PostMapping("/{id}/reserve")
+    public ResponseEntity<InventoryResponse> reserveStock(
+            @PathVariable Long id,
+            @Valid @RequestBody StockOperationRequest request) {
+
+        return ResponseEntity.ok(
+                inventoryService.reserveStock(
+                        id,
+                        request.getAmount()
+                )
+        );
+    }
+
+    @PostMapping("/{id}/release")
+    public ResponseEntity<InventoryResponse> releaseStock(
+            @PathVariable Long id,
+            @Valid @RequestBody StockOperationRequest request) {
+
+        return ResponseEntity.ok(
+                inventoryService.releaseStock(
+                        id,
+                        request.getAmount()
                 )
         );
     }

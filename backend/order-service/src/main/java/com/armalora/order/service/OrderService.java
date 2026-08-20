@@ -117,10 +117,6 @@ public class OrderService {
         return convertToResponse(savedOrder);
     }
 
-    // =========================================================
-    // GET ORDER BY ID
-    // =========================================================
-
     @Transactional(readOnly = true)
     public OrderResponse getOrderById(
             Long id
@@ -137,10 +133,6 @@ public class OrderService {
 
         return convertToResponse(order);
     }
-
-    // =========================================================
-    // GET ORDER BY ORDER NUMBER
-    // =========================================================
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderByNumber(
@@ -159,10 +151,6 @@ public class OrderService {
 
         return convertToResponse(order);
     }
-
-    // =========================================================
-    // GET USER ORDER
-    // =========================================================
 
     @Transactional(readOnly = true)
     public OrderResponse getUserOrder(
@@ -185,10 +173,6 @@ public class OrderService {
         return convertToResponse(order);
     }
 
-    // =========================================================
-    // GENERATE ORDER NUMBER
-    // =========================================================
-
     private String generateOrderNumber() {
 
         return "ARM-"
@@ -199,10 +183,6 @@ public class OrderService {
                 .substring(0, 8)
                 .toUpperCase();
     }
-
-    // =========================================================
-    // ENTITY → RESPONSE
-    // =========================================================
 
     private OrderResponse convertToResponse(
             Order order
@@ -251,10 +231,6 @@ public class OrderService {
 
         return response;
     }
-
-    // =========================================================
-    // ORDER ITEM → RESPONSE
-    // =========================================================
 
     private OrderItemResponse convertItemToResponse(
             OrderItem item
