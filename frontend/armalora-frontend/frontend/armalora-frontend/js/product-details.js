@@ -372,32 +372,86 @@ document.addEventListener("DOMContentLoaded", () => {
        Add To Cart
        ======================================== */
 
-    addToCartButton.addEventListener(
-        "click",
-        () => {
+    /* ========================================
+   Add To Cart
+   ======================================== */
 
-            const selectedSize =
-                document.querySelector(
-                    ".size-button.active"
-                );
+addToCartButton.addEventListener(
+    "click",
+    () => {
 
-
-            if (!selectedSize) {
-
-                alert(
-                    "Please select a size."
-                );
-
-                return;
-            }
-
-
-            alert(
-                `${product.name} (${selectedSize.dataset.size}) added to cart.`
+        const selectedSize =
+            document.querySelector(
+                ".size-button.active"
             );
 
+
+        if (!selectedSize) {
+
+            alert(
+                "Please select a size."
+            );
+
+            return;
         }
-    );
+
+
+        const selectedSizeValue =
+            selectedSize.dataset.size;
+
+
+        const cart =
+            JSON.parse(
+                localStorage.getItem(
+                    "armaloraCart"
+                )
+            ) || [];
+
+
+        const existingItem =
+            cart.find(
+                item =>
+                    item.productId === product.id &&
+                    item.size === selectedSizeValue
+            );
+
+
+        if (existingItem) {
+
+            existingItem.quantity += quantity;
+
+        } else {
+
+            cart.push({
+
+                productId: product.id,
+
+                name: product.name,
+
+                category: product.category,
+
+                price: product.price,
+
+                size: selectedSizeValue,
+
+                quantity: quantity
+
+            });
+
+        }
+
+
+        localStorage.setItem(
+            "armaloraCart",
+            JSON.stringify(cart)
+        );
+
+
+        window.location.href =
+            "cart.html";
+
+    }
+);
 
 
     /* ========================================
