@@ -43,6 +43,16 @@ document.addEventListener(
 
 
         /* ========================================
+           Confirmation Elements
+           ======================================== */
+
+        const orderConfirmation =
+            document.getElementById(
+                "orderConfirmation"
+            );
+
+
+        /* ========================================
            Constants
            ======================================== */
 
@@ -74,9 +84,7 @@ document.addEventListener(
            Format Currency
            ======================================== */
 
-        function formatPrice(
-            price
-        ) {
+        function formatPrice(price) {
 
             return new Intl.NumberFormat(
                 "en-LK"
@@ -89,9 +97,7 @@ document.addEventListener(
            Calculate Subtotal
            ======================================== */
 
-        function calculateSubtotal(
-            cart
-        ) {
+        function calculateSubtotal(cart) {
 
             return cart.reduce(
                 (
@@ -101,8 +107,8 @@ document.addEventListener(
 
                     return total +
                         (
-                            item.price *
-                            item.quantity
+                            Number(item.price) *
+                            Number(item.quantity)
                         );
 
                 },
@@ -113,7 +119,7 @@ document.addEventListener(
 
 
         /* ========================================
-           Shipping
+           Calculate Shipping
            ======================================== */
 
         function calculateShipping(
@@ -138,12 +144,9 @@ document.addEventListener(
            Render Order Items
            ======================================== */
 
-        function renderItems(
-            cart
-        ) {
+        function renderItems(cart) {
 
-            checkoutItems.innerHTML =
-                "";
+            checkoutItems.innerHTML = "";
 
 
             cart.forEach(
@@ -160,41 +163,29 @@ document.addEventListener(
 
 
                     element.innerHTML = `
-
                         <div class="checkout-summary-image">
                             Product
                         </div>
 
-
                         <div>
-
                             <p class="checkout-summary-item-name">
                                 ${item.name}
                             </p>
 
-
                             <p class="checkout-summary-item-meta">
-
                                 Size: ${item.size}
                                 <br>
-
                                 Quantity: ${item.quantity}
-
                             </p>
-
                         </div>
 
-
                         <p class="checkout-summary-item-price">
-
                             LKR
                             ${formatPrice(
-                                item.price *
-                                item.quantity
+                                Number(item.price) *
+                                Number(item.quantity)
                             )}
-
                         </p>
-
                     `;
 
 
@@ -212,9 +203,7 @@ document.addEventListener(
            Update Summary
            ======================================== */
 
-        function updateSummary(
-            cart
-        ) {
+        function updateSummary(cart) {
 
             const subtotal =
                 calculateSubtotal(
@@ -294,8 +283,12 @@ document.addEventListener(
                             );
 
 
-                        radio.checked =
-                            true;
+                        if (radio) {
+
+                            radio.checked =
+                                true;
+
+                        }
 
                     }
                 );
@@ -343,8 +336,12 @@ document.addEventListener(
                             );
 
 
-                        radio.checked =
-                            true;
+                        if (radio) {
+
+                            radio.checked =
+                                true;
+
+                        }
 
                     }
                 );
@@ -368,10 +365,18 @@ document.addEventListener(
                     inputId
                 );
 
+
             const error =
                 document.getElementById(
                     errorId
                 );
+
+
+            if (!input || !error) {
+
+                return;
+
+            }
 
 
             if (show) {
@@ -456,7 +461,9 @@ document.addEventListener(
                 ).value;
 
 
-            /* First name */
+            /* ========================================
+               First Name
+               ======================================== */
 
             const firstNameInvalid =
                 firstName.length < 2;
@@ -470,11 +477,15 @@ document.addEventListener(
 
 
             if (firstNameInvalid) {
+
                 valid = false;
+
             }
 
 
-            /* Last name */
+            /* ========================================
+               Last Name
+               ======================================== */
 
             const lastNameInvalid =
                 lastName.length < 2;
@@ -488,11 +499,15 @@ document.addEventListener(
 
 
             if (lastNameInvalid) {
+
                 valid = false;
+
             }
 
 
-            /* Email */
+            /* ========================================
+               Email
+               ======================================== */
 
             const emailValid =
                 /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -507,11 +522,15 @@ document.addEventListener(
 
 
             if (!emailValid) {
+
                 valid = false;
+
             }
 
 
-            /* Phone */
+            /* ========================================
+               Phone
+               ======================================== */
 
             const phoneValid =
                 /^[0-9+\-\s]{9,15}$/
@@ -526,11 +545,15 @@ document.addEventListener(
 
 
             if (!phoneValid) {
+
                 valid = false;
+
             }
 
 
-            /* Address */
+            /* ========================================
+               Address
+               ======================================== */
 
             const addressInvalid =
                 address.length < 5;
@@ -544,11 +567,15 @@ document.addEventListener(
 
 
             if (addressInvalid) {
+
                 valid = false;
+
             }
 
 
-            /* City */
+            /* ========================================
+               City
+               ======================================== */
 
             const cityInvalid =
                 city.length < 2;
@@ -562,11 +589,15 @@ document.addEventListener(
 
 
             if (cityInvalid) {
+
                 valid = false;
+
             }
 
 
-            /* Postal */
+            /* ========================================
+               Postal Code
+               ======================================== */
 
             const postalInvalid =
                 postalCode.length < 4;
@@ -580,11 +611,15 @@ document.addEventListener(
 
 
             if (postalInvalid) {
+
                 valid = false;
+
             }
 
 
-            /* Country */
+            /* ========================================
+               Country
+               ======================================== */
 
             const countryInvalid =
                 country === "";
@@ -598,11 +633,317 @@ document.addEventListener(
 
 
             if (countryInvalid) {
+
                 valid = false;
+
             }
 
 
             return valid;
+
+        }
+
+
+        /* ========================================
+           Get Delivery Name
+           ======================================== */
+
+        function getDeliveryName(
+            delivery
+        ) {
+
+            if (
+                delivery === "standard"
+            ) {
+
+                return "Standard Delivery";
+
+            }
+
+
+            if (
+                delivery === "free"
+            ) {
+
+                return "Free Delivery";
+
+            }
+
+
+            return "Delivery";
+
+        }
+
+
+        /* ========================================
+           Get Payment Name
+           ======================================== */
+
+        function getPaymentName(
+            payment
+        ) {
+
+            if (
+                payment === "card"
+            ) {
+
+                return "Card Payment";
+
+            }
+
+
+            if (
+                payment === "cash"
+            ) {
+
+                return "Cash on Delivery";
+
+            }
+
+
+            return "Payment";
+
+        }
+
+
+        /* ========================================
+           Generate Order Number
+           ======================================== */
+
+        function generateOrderNumber() {
+
+            const timestamp =
+                Date.now()
+                    .toString()
+                    .slice(-6);
+
+
+            const random =
+                Math.floor(
+                    100 +
+                    Math.random() * 900
+                );
+
+
+            return `ARM-${timestamp}-${random}`;
+
+        }
+
+
+        /* ========================================
+           Create Frontend Order
+           ======================================== */
+
+        function createFrontendOrder() {
+
+            const cart =
+                getCart();
+
+
+            if (cart.length === 0) {
+
+                return;
+
+            }
+
+
+            const firstName =
+                document.getElementById(
+                    "firstName"
+                ).value.trim();
+
+
+            const lastName =
+                document.getElementById(
+                    "lastName"
+                ).value.trim();
+
+
+            const email =
+                document.getElementById(
+                    "email"
+                ).value.trim();
+
+
+            const selectedDelivery =
+                document.querySelector(
+                    'input[name="delivery"]:checked'
+                );
+
+
+            const selectedPayment =
+                document.querySelector(
+                    'input[name="payment"]:checked'
+                );
+
+
+            /* ========================================
+               Make sure options are selected
+               ======================================== */
+
+            if (
+                !selectedDelivery ||
+                !selectedPayment
+            ) {
+
+                alert(
+                    "Please select a delivery method and payment method."
+                );
+
+                return;
+
+            }
+
+
+            const subtotal =
+                calculateSubtotal(
+                    cart
+                );
+
+
+            const shipping =
+                calculateShipping(
+                    subtotal
+                );
+
+
+            const total =
+                subtotal +
+                shipping;
+
+
+            /* ========================================
+               Generate Order Number
+               ======================================== */
+
+            const orderNumber =
+                generateOrderNumber();
+
+
+            /* ========================================
+               Update Confirmation UI
+               ======================================== */
+
+            document.getElementById(
+                "confirmationOrderNumber"
+            ).textContent =
+                orderNumber;
+
+
+            document.getElementById(
+                "confirmationCustomer"
+            ).textContent =
+                `${firstName} ${lastName}`;
+
+
+            document.getElementById(
+                "confirmationEmail"
+            ).textContent =
+                email;
+
+
+            document.getElementById(
+                "confirmationDelivery"
+            ).textContent =
+                getDeliveryName(
+                    selectedDelivery.value
+                );
+
+
+            document.getElementById(
+                "confirmationPayment"
+            ).textContent =
+                getPaymentName(
+                    selectedPayment.value
+                );
+
+
+            document.getElementById(
+                "confirmationTotal"
+            ).textContent =
+                `LKR ${formatPrice(
+                    total
+                )}`;
+
+
+            /* ========================================
+               Temporary Frontend Order
+               ======================================== */
+
+            const frontendOrder = {
+
+                orderNumber,
+
+                customer: {
+
+                    firstName,
+
+                    lastName,
+
+                    email
+
+                },
+
+                delivery:
+                    selectedDelivery.value,
+
+                payment:
+                    selectedPayment.value,
+
+                items:
+                    cart,
+
+                subtotal,
+
+                shipping,
+
+                total,
+
+                createdAt:
+                    new Date().toISOString()
+
+            };
+
+
+            localStorage.setItem(
+                "armaloraLastOrder",
+                JSON.stringify(
+                    frontendOrder
+                )
+            );
+
+
+            /* ========================================
+               Clear Cart
+               ======================================== */
+
+            localStorage.removeItem(
+                "armaloraCart"
+            );
+
+
+            /* ========================================
+               Switch UI
+               ======================================== */
+
+            checkoutContent.hidden =
+                true;
+
+
+            checkoutEmpty.hidden =
+                true;
+
+
+            orderConfirmation.hidden =
+                false;
+
+
+            window.scrollTo(
+                {
+                    top: 0,
+                    behavior: "smooth"
+                }
+            );
 
         }
 
@@ -636,9 +977,11 @@ document.addEventListener(
                             }
                         );
 
+
                         firstError.focus();
 
                     }
+
 
                     return;
 
@@ -646,18 +989,15 @@ document.addEventListener(
 
 
                 /*
-                 * IMPORTANT:
+                 * Batch 9:
                  *
-                 * Backend order creation is NOT
-                 * connected yet.
+                 * Frontend-only order confirmation.
                  *
-                 * This will be implemented in a
-                 * future integration batch.
+                 * Real backend order creation
+                 * will be connected later.
                  */
 
-                alert(
-                    "Checkout information is valid. Backend order processing will be connected in a future batch."
-                );
+                createFrontendOrder();
 
             }
         );
@@ -687,13 +1027,24 @@ document.addEventListener(
         checkoutContent.hidden =
             false;
 
+
         checkoutEmpty.hidden =
             true;
 
 
-        renderItems(cart);
+        orderConfirmation.hidden =
+            true;
 
-        updateSummary(cart);
+
+        renderItems(
+            cart
+        );
+
+
+        updateSummary(
+            cart
+        );
 
     }
+
 );

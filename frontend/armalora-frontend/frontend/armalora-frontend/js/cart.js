@@ -76,11 +76,43 @@ document.addEventListener(
            ======================================== */
 
         function saveCart(cart) {
+/* ========================================
+   Store Order
+   ======================================== */
 
-            localStorage.setItem(
-                "armaloraCart",
-                JSON.stringify(cart)
-            );
+const existingOrders =
+    JSON.parse(
+        localStorage.getItem(
+            "armaloraOrders"
+        )
+    ) || [];
+
+
+existingOrders.unshift(
+    frontendOrder
+);
+
+
+localStorage.setItem(
+    "armaloraOrders",
+    JSON.stringify(
+        existingOrders
+    )
+);
+
+
+/*
+ * Keep the latest order separately.
+ * This is useful for the confirmation
+ * page and future order-details flow.
+ */
+
+localStorage.setItem(
+    "armaloraLastOrder",
+    JSON.stringify(
+        frontendOrder
+    )
+);
 
         }
 
