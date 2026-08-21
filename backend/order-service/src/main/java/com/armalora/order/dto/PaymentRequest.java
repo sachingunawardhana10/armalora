@@ -12,7 +12,6 @@ public class PaymentRequest {
 
     private String paymentMethod;
 
-
     public Long getOrderId() {
         return orderId;
     }
@@ -20,7 +19,6 @@ public class PaymentRequest {
     public void setOrderId(Long orderId) {
         this.orderId = orderId;
     }
-
 
     public Long getUserId() {
         return userId;
@@ -30,7 +28,6 @@ public class PaymentRequest {
         this.userId = userId;
     }
 
-
     public BigDecimal getAmount() {
         return amount;
     }
@@ -39,14 +36,11 @@ public class PaymentRequest {
         this.amount = amount;
     }
 
-
     public String getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(
-            String paymentMethod
-    ) {
+    public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 }

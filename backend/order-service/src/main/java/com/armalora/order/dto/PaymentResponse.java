@@ -1,5 +1,7 @@
 package com.armalora.order.dto;
 
+import com.armalora.payment.entity.PaymentStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -13,7 +15,7 @@ public class PaymentResponse {
 
     private BigDecimal amount;
 
-    private String status;
+    private PaymentStatus status;
 
     private String transactionReference;
 
@@ -23,7 +25,6 @@ public class PaymentResponse {
 
     private LocalDateTime updatedAt;
 
-
     public Long getId() {
         return id;
     }
@@ -31,7 +32,6 @@ public class PaymentResponse {
     public void setId(Long id) {
         this.id = id;
     }
-
 
     public Long getOrderId() {
         return orderId;
@@ -41,7 +41,6 @@ public class PaymentResponse {
         this.orderId = orderId;
     }
 
-
     public Long getUserId() {
         return userId;
     }
@@ -49,7 +48,6 @@ public class PaymentResponse {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-
 
     public BigDecimal getAmount() {
         return amount;
@@ -59,58 +57,44 @@ public class PaymentResponse {
         this.amount = amount;
     }
 
-
-    public String getStatus() {
+    public PaymentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(PaymentStatus status) {
         this.status = status;
     }
-
 
     public String getTransactionReference() {
         return transactionReference;
     }
 
-    public void setTransactionReference(
-            String transactionReference
-    ) {
+    public void setTransactionReference(String transactionReference) {
         this.transactionReference =
                 transactionReference;
     }
-
 
     public String getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(
-            String paymentMethod
-    ) {
-        this.paymentMethod =
-                paymentMethod;
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
-
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(
-            LocalDateTime createdAt
-    ) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(
-            LocalDateTime updatedAt
-    ) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

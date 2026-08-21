@@ -6,7 +6,9 @@ import com.armalora.order.dto.PaymentResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "payment-service")
+@FeignClient(
+        name = "payment-service"
+)
 public interface PaymentClient {
 
     @PostMapping("/api/payments")
