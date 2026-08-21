@@ -1,5 +1,6 @@
 package com.armalora.order.client;
 
+import com.armalora.order.dto.InventoryReleaseRequest;
 import com.armalora.order.dto.InventoryResponse;
 
 import org.springframework.cloud.openfeign.FeignClient;
@@ -25,13 +26,8 @@ public interface InventoryClient {
             @PathVariable("productId") Long productId,
             @PathVariable("variantId") Long variantId
     );
-
-    @FeignClient(name = "inventory-service")
-    public interface InventoryClient {
-
-        @PostMapping("/api/inventory/reserve")
-        InventoryReservationResponse reserveInventory(
-                @RequestBody ReserveInventoryRequest request
-        );
-    }
+    @PostMapping("/api/inventory/release")
+    void releaseInventory(
+            @RequestBody InventoryReleaseRequest request
+    );
 }

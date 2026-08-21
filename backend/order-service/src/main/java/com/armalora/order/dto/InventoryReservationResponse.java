@@ -6,7 +6,6 @@ public class InventoryReservationResponse {
 
     private String message;
 
-
     public boolean isSuccess() {
         return success;
     }
@@ -14,7 +13,6 @@ public class InventoryReservationResponse {
     public void setSuccess(boolean success) {
         this.success = success;
     }
-
 
     public String getMessage() {
         return message;
