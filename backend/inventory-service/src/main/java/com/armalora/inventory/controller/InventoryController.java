@@ -1,7 +1,9 @@
 package com.armalora.inventory.controller;
 
 import com.armalora.inventory.dto.InventoryRequest;
+import com.armalora.inventory.dto.InventoryReservationResponse;
 import com.armalora.inventory.dto.InventoryResponse;
+import com.armalora.inventory.dto.ReserveInventoryRequest;
 import com.armalora.inventory.dto.StockOperationRequest;
 import com.armalora.inventory.service.InventoryService;
 
@@ -156,6 +158,19 @@ public class InventoryController {
                 inventoryService.releaseStock(
                         id,
                         request.getAmount()
+                )
+        );
+    }
+
+    @PostMapping("/reserve")
+    public ResponseEntity<InventoryReservationResponse>
+    reserveInventory(
+            @RequestBody ReserveInventoryRequest request
+    ) {
+
+        return ResponseEntity.ok(
+                inventoryService.reserveInventory(
+                        request
                 )
         );
     }
