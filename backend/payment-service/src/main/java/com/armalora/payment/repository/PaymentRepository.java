@@ -5,14 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface PaymentRepository
-        extends JpaRepository<Payment, Long> {
+public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
-    Optional<Payment> findByOrderId(
-            Long orderId
-    );
+    // Custom query methods
+    boolean existsByOrderId(Long orderId);
 
-    boolean existsByOrderId(
-            Long orderId
-    );
+    Optional<Payment> findByOrderId(Long orderId);
 }

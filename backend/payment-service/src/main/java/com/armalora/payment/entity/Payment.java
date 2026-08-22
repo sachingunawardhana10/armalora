@@ -150,4 +150,35 @@ public class Payment {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+    @Enumerated(EnumType.STRING)
+    @Column(
+            name = "gateway",
+            nullable = false,
+            length = 30
+    )
+    private PaymentGateway gateway;
+
+    @Column(
+            name = "gateway_transaction_id"
+    )
+    private String gatewayTransactionId;
+
+    public PaymentGateway getGateway() {
+        return gateway;
+    }
+
+    public void setGateway(PaymentGateway gateway) {
+        this.gateway = gateway;
+    }
+
+    public String getGatewayTransactionId() {
+        return gatewayTransactionId;
+    }
+
+    public void setGatewayTransactionId(
+            String gatewayTransactionId
+    ) {
+        this.gatewayTransactionId =
+                gatewayTransactionId;
+    }
 }

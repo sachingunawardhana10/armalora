@@ -1,5 +1,6 @@
 package com.armalora.payment.dto;
 
+import com.armalora.payment.entity.PaymentGateway;
 import com.armalora.payment.entity.PaymentStatus;
 
 import java.math.BigDecimal;
@@ -21,65 +22,53 @@ public class PaymentResponse {
 
     private String paymentMethod;
 
+    private PaymentGateway gateway;
+
+    private String gatewayTransactionId;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
-
 
     public Long getId() {
         return id;
     }
 
-    public void setId(
-            Long id
-    ) {
+    public void setId(Long id) {
         this.id = id;
     }
-
 
     public Long getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(
-            Long orderId
-    ) {
+    public void setOrderId(Long orderId) {
         this.orderId = orderId;
     }
-
 
     public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(
-            Long userId
-    ) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
-
 
     public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(
-            BigDecimal amount
-    ) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
-
 
     public PaymentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(
-            PaymentStatus status
-    ) {
+    public void setStatus(PaymentStatus status) {
         this.status = status;
     }
-
 
     public String getTransactionReference() {
         return transactionReference;
@@ -92,18 +81,33 @@ public class PaymentResponse {
                 transactionReference;
     }
 
-
     public String getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(
-            String paymentMethod
-    ) {
+    public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod =
                 paymentMethod;
     }
 
+    public PaymentGateway getGateway() {
+        return gateway;
+    }
+
+    public void setGateway(PaymentGateway gateway) {
+        this.gateway = gateway;
+    }
+
+    public String getGatewayTransactionId() {
+        return gatewayTransactionId;
+    }
+
+    public void setGatewayTransactionId(
+            String gatewayTransactionId
+    ) {
+        this.gatewayTransactionId =
+                gatewayTransactionId;
+    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -114,7 +118,6 @@ public class PaymentResponse {
     ) {
         this.createdAt = createdAt;
     }
-
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;

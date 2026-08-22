@@ -2,6 +2,7 @@ package com.armalora.payment.controller;
 
 import com.armalora.payment.dto.CreatePaymentRequest;
 import com.armalora.payment.dto.PaymentResponse;
+import com.armalora.payment.dto.PaymentStatusUpdateRequest;
 import com.armalora.payment.service.PaymentService;
 
 import jakarta.validation.Valid;
@@ -48,6 +49,23 @@ public class PaymentController {
         return ResponseEntity.ok(
                 paymentService.getPaymentByOrderId(
                         orderId
+                )
+        );
+    }
+
+    @PatchMapping("/{paymentId}/status")
+    public ResponseEntity<PaymentResponse>
+    updatePaymentStatus(
+            @PathVariable Long paymentId,
+            @Valid
+            @RequestBody
+            PaymentStatusUpdateRequest request
+    ) {
+
+        return ResponseEntity.ok(
+                paymentService.updatePaymentStatus(
+                        paymentId,
+                        request
                 )
         );
     }
