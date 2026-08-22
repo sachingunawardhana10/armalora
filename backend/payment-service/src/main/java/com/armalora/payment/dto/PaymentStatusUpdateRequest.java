@@ -15,7 +15,9 @@ public class PaymentStatusUpdateRequest {
         return status;
     }
 
-    public void setStatus(PaymentStatus status) {
+    public void setStatus(
+            PaymentStatus status
+    ) {
         this.status = status;
     }
 

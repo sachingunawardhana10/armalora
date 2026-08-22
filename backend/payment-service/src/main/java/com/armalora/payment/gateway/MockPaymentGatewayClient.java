@@ -3,12 +3,13 @@ package com.armalora.payment.gateway;
 import com.armalora.payment.entity.Payment;
 import com.armalora.payment.entity.PaymentGateway;
 import com.armalora.payment.entity.PaymentStatus;
-import org.springframework.context.annotation.Primary;
+
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
-@Primary
-public class InternalPaymentGateway
+public class MockPaymentGatewayClient
         implements PaymentGatewayClient {
 
     @Override
@@ -16,10 +17,17 @@ public class InternalPaymentGateway
             Payment payment
     ) {
 
+        String gatewayTransactionId =
+                "MOCK-"
+                        + UUID.randomUUID()
+                        .toString()
+                        .substring(0, 12)
+                        .toUpperCase();
+
         return new PaymentGatewayResult(
                 PaymentGateway.INTERNAL,
                 PaymentStatus.SUCCESS,
-                "INT-" + payment.getOrderId()
+                gatewayTransactionId
         );
     }
 }

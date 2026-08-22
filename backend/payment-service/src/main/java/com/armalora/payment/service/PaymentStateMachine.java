@@ -1,6 +1,7 @@
 package com.armalora.payment.service;
 
 import com.armalora.payment.entity.PaymentStatus;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,28 +16,24 @@ public class PaymentStateMachine {
             return false;
         }
 
-        if (current == next) {
-            return false;
+        if (current == PaymentStatus.PENDING) {
+
+            return next == PaymentStatus.PROCESSING
+                    || next == PaymentStatus.CANCELLED;
         }
 
-        return switch (current) {
+        if (current == PaymentStatus.PROCESSING) {
 
-            case PENDING ->
-                    next == PaymentStatus.PROCESSING
-                            || next == PaymentStatus.CANCELLED;
+            return next == PaymentStatus.SUCCESS
+                    || next == PaymentStatus.FAILED
+                    || next == PaymentStatus.CANCELLED;
+        }
 
-            case PROCESSING ->
-                    next == PaymentStatus.SUCCESS
-                            || next == PaymentStatus.FAILED
-                            || next == PaymentStatus.CANCELLED;
+        if (current == PaymentStatus.SUCCESS) {
 
-            case SUCCESS ->
-                    next == PaymentStatus.REFUNDED;
+            return next == PaymentStatus.REFUNDED;
+        }
 
-            case FAILED,
-                 CANCELLED,
-                 REFUNDED ->
-                    false;
-        };
+        return false;
     }
 }

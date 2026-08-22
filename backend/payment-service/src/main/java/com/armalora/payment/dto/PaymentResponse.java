@@ -1,6 +1,5 @@
 package com.armalora.payment.dto;
 
-import com.armalora.payment.entity.PaymentGateway;
 import com.armalora.payment.entity.PaymentStatus;
 
 import java.math.BigDecimal;
@@ -22,7 +21,7 @@ public class PaymentResponse {
 
     private String paymentMethod;
 
-    private PaymentGateway gateway;
+    private String gateway;
 
     private String gatewayTransactionId;
 
@@ -85,16 +84,20 @@ public class PaymentResponse {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
+    public void setPaymentMethod(
+            String paymentMethod
+    ) {
         this.paymentMethod =
                 paymentMethod;
     }
 
-    public PaymentGateway getGateway() {
+    public String getGateway() {
         return gateway;
     }
 
-    public void setGateway(PaymentGateway gateway) {
+    public void setGateway(
+            String gateway
+    ) {
         this.gateway = gateway;
     }
 

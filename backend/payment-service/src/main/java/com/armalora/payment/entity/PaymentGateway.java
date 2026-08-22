@@ -4,5 +4,7 @@ public enum PaymentGateway {
 
     INTERNAL,
 
-    PAYHERE
+    PAYHERE,
+
+    MOCK;
 }

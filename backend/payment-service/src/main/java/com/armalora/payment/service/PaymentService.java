@@ -18,7 +18,9 @@ import java.util.UUID;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
+
     private final PaymentGatewayClient paymentGatewayClient;
+
     private final PaymentStateMachine paymentStateMachine;
 
     public PaymentService(
@@ -26,17 +28,17 @@ public class PaymentService {
             PaymentGatewayClient paymentGatewayClient,
             PaymentStateMachine paymentStateMachine
     ) {
-        this.paymentRepository = paymentRepository;
-        this.paymentGatewayClient = paymentGatewayClient;
-        this.paymentStateMachine = paymentStateMachine;
+
+        this.paymentRepository =
+                paymentRepository;
+
+        this.paymentGatewayClient =
+                paymentGatewayClient;
+
+        this.paymentStateMachine =
+                paymentStateMachine;
     }
 
-    /**
-     * Creates a new payment record.
-     *
-     * The payment initially starts in PENDING state.
-     * Actual processing is handled separately by processPayment().
-     */
     @Transactional
     public PaymentResponse createPayment(
             CreatePaymentRequest request
@@ -52,7 +54,8 @@ public class PaymentService {
             );
         }
 
-        Payment payment = new Payment();
+        Payment payment =
+                new Payment();
 
         payment.setOrderId(
                 request.getOrderId()
@@ -70,12 +73,6 @@ public class PaymentService {
                 request.getPaymentMethod()
         );
 
-        /*
-         * New payment must begin in PENDING state.
-         *
-         * The gateway processing will happen through
-         * processPayment().
-         */
         payment.setStatus(
                 PaymentStatus.PENDING
         );
@@ -87,92 +84,30 @@ public class PaymentService {
         Payment savedPayment =
                 paymentRepository.save(payment);
 
-        return convertToResponse(
+        return processPayment(
                 savedPayment
         );
     }
 
-    /**
-     * Gets payment by order ID.
-     */
-    @Transactional(readOnly = true)
-    public PaymentResponse getPaymentByOrderId(
-            Long orderId
-    ) {
-
-        Payment payment =
-                paymentRepository
-                        .findByOrderId(orderId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Payment not found for order: "
-                                                + orderId
-                                )
-                        );
-
-        return convertToResponse(
-                payment
-        );
-    }
-
-    /**
-     * Gets payment by payment ID.
-     */
-    @Transactional(readOnly = true)
-    public PaymentResponse getPaymentById(
-            Long paymentId
-    ) {
-
-        Payment payment =
-                paymentRepository
-                        .findById(paymentId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Payment not found: "
-                                                + paymentId
-                                )
-                        );
-
-        return convertToResponse(
-                payment
-        );
-    }
-
-    /**
-     * Processes a payment through the configured gateway.
-     */
     @Transactional
     public PaymentResponse processPayment(
-            Long paymentId
+            Payment payment
     ) {
 
-        Payment payment =
-                paymentRepository
-                        .findById(paymentId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Payment not found: "
-                                                + paymentId
-                                )
-                        );
+        PaymentStatus currentStatus =
+                payment.getStatus();
 
-        /*
-         * Payment must be PENDING before processing.
-         */
         if (!paymentStateMachine.isValidTransition(
-                payment.getStatus(),
+                currentStatus,
                 PaymentStatus.PROCESSING
         )) {
 
             throw new IllegalStateException(
                     "Payment cannot be processed from status: "
-                            + payment.getStatus()
+                            + currentStatus
             );
         }
 
-        /*
-         * Move payment to PROCESSING.
-         */
         payment.setStatus(
                 PaymentStatus.PROCESSING
         );
@@ -201,28 +136,9 @@ public class PaymentService {
             );
         }
 
-        /*
-         * Validate gateway result.
-         */
-        if (result == null) {
-
-            payment.setStatus(
-                    PaymentStatus.FAILED
-            );
-
-            paymentRepository.save(payment);
-
-            throw new IllegalStateException(
-                    "Payment gateway returned no result"
-            );
-        }
-
         PaymentStatus gatewayStatus =
-                result.getStatus();
+                result.status();
 
-        /*
-         * Validate PROCESSING -> SUCCESS/FAILED/CANCELLED.
-         */
         if (!paymentStateMachine.isValidTransition(
                 PaymentStatus.PROCESSING,
                 gatewayStatus
@@ -244,13 +160,13 @@ public class PaymentService {
                 gatewayStatus
         );
 
-        if (result.getGatewayTransactionId()
-                != null) {
+        payment.setGateway(
+                String.valueOf(result.gateway())
+        );
 
-            payment.setGatewayTransactionId(
-                    result.getGatewayTransactionId()
-            );
-        }
+        payment.setGatewayTransactionId(
+                result.gatewayTransactionId()
+        );
 
         Payment updatedPayment =
                 paymentRepository.save(payment);
@@ -260,12 +176,26 @@ public class PaymentService {
         );
     }
 
-    /**
-     * Manually updates payment status.
-     *
-     * Used for administrative/payment-gateway callbacks
-     * where required.
-     */
+    @Transactional(readOnly = true)
+    public PaymentResponse getPaymentByOrderId(
+            Long orderId
+    ) {
+
+        Payment payment =
+                paymentRepository
+                        .findByOrderId(orderId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Payment not found for order: "
+                                                + orderId
+                                )
+                        );
+
+        return convertToResponse(
+                payment
+        );
+    }
+
     @Transactional
     public PaymentResponse updatePaymentStatus(
             Long paymentId,
@@ -307,9 +237,9 @@ public class PaymentService {
 
         if (request.getGatewayTransactionId()
                 != null
-                && !request
-                .getGatewayTransactionId()
-                .isBlank()) {
+                &&
+                !request.getGatewayTransactionId()
+                        .isBlank()) {
 
             payment.setGatewayTransactionId(
                     request.getGatewayTransactionId()
@@ -324,9 +254,6 @@ public class PaymentService {
         );
     }
 
-    /**
-     * Generates an internal transaction reference.
-     */
     private String generateTransactionReference() {
 
         return "TXN-"
@@ -336,9 +263,6 @@ public class PaymentService {
                 .toUpperCase();
     }
 
-    /**
-     * Converts Payment entity into API response.
-     */
     private PaymentResponse convertToResponse(
             Payment payment
     ) {

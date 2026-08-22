@@ -12,6 +12,14 @@ import java.time.LocalDateTime;
                 @Index(
                         name = "idx_payment_order_id",
                         columnList = "order_id"
+                ),
+                @Index(
+                        name = "idx_payment_user_id",
+                        columnList = "user_id"
+                ),
+                @Index(
+                        name = "idx_payment_status",
+                        columnList = "status"
                 )
         }
 )
@@ -50,22 +58,42 @@ public class Payment {
 
     @Column(
             name = "transaction_reference",
-            unique = true
+            unique = true,
+            length = 100
     )
     private String transactionReference;
 
     @Column(
-            name = "payment_method"
+            name = "payment_method",
+            nullable = false,
+            length = 50
     )
     private String paymentMethod;
+
+    @Column(
+            name = "gateway",
+            length = 50
+    )
+    private String gateway;
+
+    @Column(
+            name = "gateway_transaction_id",
+            unique = true,
+            length = 150
+    )
+    private String gatewayTransactionId;
 
     @Column(
             name = "created_at",
             nullable = false
     )
+
+
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(
+            name = "updated_at"
+    )
     private LocalDateTime updatedAt;
 
     @PrePersist
@@ -129,7 +157,9 @@ public class Payment {
         return transactionReference;
     }
 
-    public void setTransactionReference(String transactionReference) {
+    public void setTransactionReference(
+            String transactionReference
+    ) {
         this.transactionReference =
                 transactionReference;
     }
@@ -138,36 +168,20 @@ public class Payment {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
+    public void setPaymentMethod(
+            String paymentMethod
+    ) {
         this.paymentMethod =
                 paymentMethod;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    @Enumerated(EnumType.STRING)
-    @Column(
-            name = "gateway",
-            nullable = false,
-            length = 30
-    )
-    private PaymentGateway gateway;
-
-    @Column(
-            name = "gateway_transaction_id"
-    )
-    private String gatewayTransactionId;
-
-    public PaymentGateway getGateway() {
+    public String getGateway() {
         return gateway;
     }
 
-    public void setGateway(PaymentGateway gateway) {
+    public void setGateway(
+            String gateway
+    ) {
         this.gateway = gateway;
     }
 
@@ -180,5 +194,14 @@ public class Payment {
     ) {
         this.gatewayTransactionId =
                 gatewayTransactionId;
+    }
+
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }

@@ -1,8 +1,8 @@
 package com.armalora.payment.dto;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
@@ -49,7 +49,10 @@ public class CreatePaymentRequest {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
+    public void setPaymentMethod(
+            String paymentMethod
+    ) {
+        this.paymentMethod =
+                paymentMethod;
     }
 }
