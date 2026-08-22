@@ -4,7 +4,13 @@ public enum OrderStatus {
 
     PENDING,
 
+    PENDING_PAYMENT,
+
     CONFIRMED,
+
+    PAYMENT_FAILED,
+
+    CANCELLED,
 
     PROCESSING,
 
@@ -12,5 +18,5 @@ public enum OrderStatus {
 
     DELIVERED,
 
-    CANCELLED
+    COMPLETED
 }

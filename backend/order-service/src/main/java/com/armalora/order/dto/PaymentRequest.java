@@ -12,6 +12,21 @@ public class PaymentRequest {
 
     private String paymentMethod;
 
+    public PaymentRequest() {
+    }
+
+    public PaymentRequest(
+            Long orderId,
+            Long userId,
+            BigDecimal amount,
+            String paymentMethod
+    ) {
+        this.orderId = orderId;
+        this.userId = userId;
+        this.amount = amount;
+        this.paymentMethod = paymentMethod;
+    }
+
     public Long getOrderId() {
         return orderId;
     }

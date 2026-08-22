@@ -1,6 +1,6 @@
 package com.armalora.order.dto;
 
-import com.armalora.payment.entity.PaymentStatus;
+import com.armalora.order.entity.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,6 +24,15 @@ public class PaymentResponse {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private String currency;
+
+    private String gateway;
+
+    private String gatewayTransactionId;
+
+    public PaymentResponse() {
+    }
 
     public Long getId() {
         return id;
@@ -69,7 +78,9 @@ public class PaymentResponse {
         return transactionReference;
     }
 
-    public void setTransactionReference(String transactionReference) {
+    public void setTransactionReference(
+            String transactionReference
+    ) {
         this.transactionReference =
                 transactionReference;
     }
@@ -78,15 +89,20 @@ public class PaymentResponse {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
+    public void setPaymentMethod(
+            String paymentMethod
+    ) {
+        this.paymentMethod =
+                paymentMethod;
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(
+            LocalDateTime createdAt
+    ) {
         this.createdAt = createdAt;
     }
 
@@ -94,7 +110,36 @@ public class PaymentResponse {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(
+            LocalDateTime updatedAt
+    ) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getGateway() {
+        return gateway;
+    }
+
+    public void setGateway(String gateway) {
+        this.gateway = gateway;
+    }
+
+    public String getGatewayTransactionId() {
+        return gatewayTransactionId;
+    }
+
+    public void setGatewayTransactionId(
+            String gatewayTransactionId
+    ) {
+        this.gatewayTransactionId =
+                gatewayTransactionId;
     }
 }

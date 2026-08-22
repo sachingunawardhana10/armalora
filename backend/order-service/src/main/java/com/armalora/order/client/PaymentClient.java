@@ -16,7 +16,9 @@ public interface PaymentClient {
             @RequestBody PaymentRequest request
     );
 
-    @GetMapping("/api/payments/order/{orderId}")
+    @GetMapping(
+            "/api/payments/order/{orderId}"
+    )
     PaymentResponse getPaymentByOrderId(
             @PathVariable("orderId") Long orderId
     );
