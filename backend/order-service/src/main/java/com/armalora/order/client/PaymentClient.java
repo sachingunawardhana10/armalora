@@ -7,7 +7,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 @FeignClient(
-        name = "payment-service"
+        name = "payment-service",
+        configuration = FeignClientConfig.class
 )
 public interface PaymentClient {
 
