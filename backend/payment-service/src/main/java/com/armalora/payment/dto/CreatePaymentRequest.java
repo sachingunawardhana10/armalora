@@ -1,7 +1,6 @@
 package com.armalora.payment.dto;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
@@ -15,10 +14,11 @@ public class CreatePaymentRequest {
     private Long userId;
 
     @NotNull
-    @DecimalMin(value = "0.01")
+    @DecimalMin("0.01")
     private BigDecimal amount;
 
-    @NotBlank
+    private String currency;
+
     private String paymentMethod;
 
     public Long getOrderId() {
@@ -45,14 +45,19 @@ public class CreatePaymentRequest {
         this.amount = amount;
     }
 
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
     public String getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(
-            String paymentMethod
-    ) {
-        this.paymentMethod =
-                paymentMethod;
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }

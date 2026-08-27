@@ -4,6 +4,7 @@ import com.armalora.payment.dto.CreatePaymentRequest;
 import com.armalora.payment.dto.PaymentResponse;
 import com.armalora.payment.dto.PaymentStatusUpdateRequest;
 import com.armalora.payment.entity.Payment;
+import com.armalora.payment.entity.PaymentGateway;
 import com.armalora.payment.entity.PaymentStatus;
 import com.armalora.payment.gateway.PaymentGatewayClient;
 import com.armalora.payment.gateway.PaymentGatewayResult;
@@ -28,7 +29,6 @@ public class PaymentService {
             PaymentGatewayClient paymentGatewayClient,
             PaymentStateMachine paymentStateMachine
     ) {
-
         this.paymentRepository =
                 paymentRepository;
 
@@ -69,12 +69,27 @@ public class PaymentService {
                 request.getAmount()
         );
 
+        payment.setCurrency(
+                request.getCurrency()
+        );
+
         payment.setPaymentMethod(
                 request.getPaymentMethod()
         );
 
+        payment.setCurrency(
+                request.getCurrency() == null ||
+                        request.getCurrency().isBlank()
+                        ? "LKR"
+                        : request.getCurrency().toUpperCase()
+        );
+
         payment.setStatus(
                 PaymentStatus.PENDING
+        );
+
+        payment.setGateway(
+                PaymentGateway.INTERNAL
         );
 
         payment.setTransactionReference(
@@ -84,27 +99,34 @@ public class PaymentService {
         Payment savedPayment =
                 paymentRepository.save(payment);
 
-        return processPayment(
+        return convertToResponse(
                 savedPayment
         );
     }
 
     @Transactional
     public PaymentResponse processPayment(
-            Payment payment
+            Long paymentId
     ) {
 
-        PaymentStatus currentStatus =
-                payment.getStatus();
+        Payment payment =
+                paymentRepository
+                        .findById(paymentId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Payment not found: "
+                                                + paymentId
+                                )
+                        );
 
         if (!paymentStateMachine.isValidTransition(
-                currentStatus,
+                payment.getStatus(),
                 PaymentStatus.PROCESSING
         )) {
 
             throw new IllegalStateException(
                     "Payment cannot be processed from status: "
-                            + currentStatus
+                            + payment.getStatus()
             );
         }
 
@@ -136,36 +158,16 @@ public class PaymentService {
             );
         }
 
-        PaymentStatus gatewayStatus =
-                result.status();
-
-        if (!paymentStateMachine.isValidTransition(
-                PaymentStatus.PROCESSING,
-                gatewayStatus
-        )) {
-
-            payment.setStatus(
-                    PaymentStatus.FAILED
-            );
-
-            paymentRepository.save(payment);
-
-            throw new IllegalStateException(
-                    "Invalid gateway payment status: "
-                            + gatewayStatus
-            );
-        }
-
         payment.setStatus(
-                gatewayStatus
+                result.getStatus()
         );
 
         payment.setGateway(
-                String.valueOf(result.gateway())
+                PaymentGateway.valueOf(String.valueOf(result.getGateway()))
         );
 
         payment.setGatewayTransactionId(
-                result.gatewayTransactionId()
+                result.getGatewayTransactionId()
         );
 
         Payment updatedPayment =
@@ -191,9 +193,7 @@ public class PaymentService {
                                 )
                         );
 
-        return convertToResponse(
-                payment
-        );
+        return convertToResponse(payment);
     }
 
     @Transactional
@@ -236,10 +236,7 @@ public class PaymentService {
         );
 
         if (request.getGatewayTransactionId()
-                != null
-                &&
-                !request.getGatewayTransactionId()
-                        .isBlank()) {
+                != null) {
 
             payment.setGatewayTransactionId(
                     request.getGatewayTransactionId()
@@ -286,6 +283,10 @@ public class PaymentService {
                 payment.getAmount()
         );
 
+        response.setCurrency(
+                payment.getCurrency()
+        );
+
         response.setStatus(
                 payment.getStatus()
         );
@@ -299,7 +300,7 @@ public class PaymentService {
         );
 
         response.setGateway(
-                payment.getGateway()
+                PaymentGateway.valueOf(String.valueOf(payment.getGateway()))
         );
 
         response.setGatewayTransactionId(

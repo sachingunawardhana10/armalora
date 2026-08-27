@@ -2,11 +2,8 @@ package com.armalora.payment.dto;
 
 import com.armalora.payment.entity.PaymentStatus;
 
-import jakarta.validation.constraints.NotNull;
-
 public class PaymentStatusUpdateRequest {
 
-    @NotNull
     private PaymentStatus status;
 
     private String gatewayTransactionId;

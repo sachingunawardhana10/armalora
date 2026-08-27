@@ -12,14 +12,6 @@ import java.time.LocalDateTime;
                 @Index(
                         name = "idx_payment_order_id",
                         columnList = "order_id"
-                ),
-                @Index(
-                        name = "idx_payment_user_id",
-                        columnList = "user_id"
-                ),
-                @Index(
-                        name = "idx_payment_status",
-                        columnList = "status"
                 )
         }
 )
@@ -49,6 +41,12 @@ public class Payment {
     )
     private BigDecimal amount;
 
+    @Column(
+            nullable = false,
+            length = 3
+    )
+    private String currency;
+
     @Enumerated(EnumType.STRING)
     @Column(
             nullable = false,
@@ -57,38 +55,40 @@ public class Payment {
     private PaymentStatus status;
 
     @Column(
+            name = "payment_reference",
+            nullable = false,
+            unique = true
+    )
+    private String paymentReference;
+
+    @Column(
             name = "transaction_reference",
-            unique = true,
-            length = 100
+            unique = true
     )
     private String transactionReference;
 
-    @Column(
-            name = "payment_method",
-            nullable = false,
-            length = 50
-    )
-    private String paymentMethod;
-
+    @Enumerated(EnumType.STRING)
     @Column(
             name = "gateway",
-            length = 50
+            nullable = false,
+            length = 30
     )
-    private String gateway;
+    private PaymentGateway gateway;
 
     @Column(
-            name = "gateway_transaction_id",
-            unique = true,
-            length = 150
+            name = "gateway_transaction_id"
     )
     private String gatewayTransactionId;
+
+    @Column(
+            name = "payment_method"
+    )
+    private String paymentMethod;
 
     @Column(
             name = "created_at",
             nullable = false
     )
-
-
     private LocalDateTime createdAt;
 
     @Column(
@@ -108,6 +108,31 @@ public class Payment {
         if (status == null) {
             status = PaymentStatus.PENDING;
         }
+
+        if (currency == null ||
+                currency.isBlank()) {
+
+            currency = "LKR";
+        }
+
+        if (paymentReference == null ||
+                paymentReference.isBlank()) {
+
+            paymentReference =
+                    generatePaymentReference();
+        }
+
+        if (transactionReference == null ||
+                transactionReference.isBlank()) {
+
+            transactionReference =
+                    generateTransactionReference();
+        }
+
+        if (gateway == null) {
+            gateway =
+                    PaymentGateway.INTERNAL;
+        }
     }
 
     @PreUpdate
@@ -115,6 +140,24 @@ public class Payment {
 
         updatedAt =
                 LocalDateTime.now();
+    }
+
+    private String generatePaymentReference() {
+
+        return "PAY-"
+                + java.util.UUID.randomUUID()
+                .toString()
+                .substring(0, 12)
+                .toUpperCase();
+    }
+
+    private String generateTransactionReference() {
+
+        return "TXN-"
+                + java.util.UUID.randomUUID()
+                .toString()
+                .substring(0, 12)
+                .toUpperCase();
     }
 
     public Long getId() {
@@ -145,12 +188,31 @@ public class Payment {
         this.amount = amount;
     }
 
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
     public PaymentStatus getStatus() {
         return status;
     }
 
     public void setStatus(PaymentStatus status) {
         this.status = status;
+    }
+
+    public String getPaymentReference() {
+        return paymentReference;
+    }
+
+    public void setPaymentReference(
+            String paymentReference
+    ) {
+        this.paymentReference =
+                paymentReference;
     }
 
     public String getTransactionReference() {
@@ -164,23 +226,12 @@ public class Payment {
                 transactionReference;
     }
 
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(
-            String paymentMethod
-    ) {
-        this.paymentMethod =
-                paymentMethod;
-    }
-
-    public String getGateway() {
+    public PaymentGateway getGateway() {
         return gateway;
     }
 
     public void setGateway(
-            String gateway
+            PaymentGateway gateway
     ) {
         this.gateway = gateway;
     }
@@ -196,6 +247,16 @@ public class Payment {
                 gatewayTransactionId;
     }
 
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(
+            String paymentMethod
+    ) {
+        this.paymentMethod =
+                paymentMethod;
+    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

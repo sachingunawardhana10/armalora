@@ -5,6 +5,8 @@ import com.armalora.payment.dto.PaymentResponse;
 import com.armalora.payment.dto.PaymentStatusUpdateRequest;
 import com.armalora.payment.service.PaymentService;
 
+import com.armalora.payment.dto.PaymentStatusUpdateRequest;
+
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -73,4 +75,17 @@ public class PaymentController {
                 )
         );
     }
-}
+    @PostMapping("/{paymentId}/process")
+    public ResponseEntity<PaymentResponse> processPayment(
+            @PathVariable Long paymentId
+    ) {
+
+        return ResponseEntity.ok(
+                paymentService.processPayment(
+                        paymentId
+                )
+        );
+    }
+
+
+    }
