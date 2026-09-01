@@ -28,8 +28,8 @@ public class CorsConfig {
                         "GET",
                         "POST",
                         "PUT",
-                        "DELETE",
                         "PATCH",
+                        "DELETE",
                         "OPTIONS"
                 )
         );
