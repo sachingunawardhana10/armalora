@@ -1,7 +1,9 @@
 package com.armalora.inventory.service;
 
 import com.armalora.inventory.dto.InventoryRequest;
+import com.armalora.inventory.dto.InventoryReservationResponse;
 import com.armalora.inventory.dto.InventoryResponse;
+import com.armalora.inventory.dto.ReserveInventoryRequest;
 import com.armalora.inventory.entity.Inventory;
 import com.armalora.inventory.exception.InventoryAlreadyExistsException;
 import com.armalora.inventory.exception.InventoryNotFoundException;
@@ -468,4 +470,6 @@ public class InventoryService {
 
         return response;
     }
+
+
 }

@@ -1,0 +1,20 @@
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+        spring:
+          jackson:
+            time-zone: Asia/Colombo
+
+        management:
+          endpoints:
+            web:
+              exposure:
+                include: health,info
